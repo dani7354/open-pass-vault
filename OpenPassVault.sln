@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenPassVault.Shared", "OpenPassVault.Shared\OpenPassVault.Shared.csproj", "{8223D0CF-C1B5-4BE6-BDBD-5DAC086DCB1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenPassVault.Web", "OpenPassVault.Web\OpenPassVault.Web.csproj", "{CFB90CC1-74F0-4790-A40A-A3C237A3105F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenPassVault.API", "OpenPassVault.API\OpenPassVault.API.csproj", "{0596DCF1-C71B-410E-AD1E-4F9CA7FB9FE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenPassVault.Test", "OpenPassVault.Test\OpenPassVault.Test.csproj", "{0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8223D0CF-C1B5-4BE6-BDBD-5DAC086DCB1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8223D0CF-C1B5-4BE6-BDBD-5DAC086DCB1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8223D0CF-C1B5-4BE6-BDBD-5DAC086DCB1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8223D0CF-C1B5-4BE6-BDBD-5DAC086DCB1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFB90CC1-74F0-4790-A40A-A3C237A3105F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFB90CC1-74F0-4790-A40A-A3C237A3105F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFB90CC1-74F0-4790-A40A-A3C237A3105F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFB90CC1-74F0-4790-A40A-A3C237A3105F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0596DCF1-C71B-410E-AD1E-4F9CA7FB9FE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0596DCF1-C71B-410E-AD1E-4F9CA7FB9FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0596DCF1-C71B-410E-AD1E-4F9CA7FB9FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0596DCF1-C71B-410E-AD1E-4F9CA7FB9FE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

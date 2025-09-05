@@ -1,0 +1,6 @@
+@OpenPassVault.API_HostAddress = http://localhost:5005
+
+GET {{OpenPassVault.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
