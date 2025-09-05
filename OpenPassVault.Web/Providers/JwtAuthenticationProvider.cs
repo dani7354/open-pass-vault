@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 using OpenPassVault.Web.Services.Interfaces;
 
@@ -9,6 +10,16 @@ public class JwtAuthenticationProvider(IAuthService authService) : Authenticatio
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        throw new NotImplementedException();
+        // var tokenHandler = new JwtSecurityTokenHandler();
+        //var identity = new ClaimsIdentity();
+
+        /*
+        if (tokenHandler.CanReadToken(token))
+        {
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(token);
+            identity = new(jwtSecurityToken.Claims, "Blazor School");
+        }
+
+        return new(identity);*/
     }
 }

@@ -11,14 +11,15 @@ public class HttpApiService(string baseUrl) : IHttpApiService
     {
         var response = await _client.GetAsync(url);
         response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
 
-        return JsonSerializer.Deserialize<T>(json);
+        return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync());
     }
 
-    public async Task PostAsync<T>(string url, T data)
+    public async Task<T?> PostAsync<T>(string url, object data)
     {
         var response = await _client.PostAsync(url, new StringContent(JsonSerializer.Serialize(data)));
         response.EnsureSuccessStatusCode();
+        
+        return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync());
     }
 }
