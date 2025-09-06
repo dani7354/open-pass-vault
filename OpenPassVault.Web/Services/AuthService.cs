@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using OpenPassVault.Shared.Crypto.Interfaces;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Web.Helpers;
 using OpenPassVault.Web.Models;
@@ -6,7 +7,10 @@ using OpenPassVault.Web.Services.Interfaces;
 
 namespace OpenPassVault.Web.Services;
 
-public class AuthService(IHttpApiService httpApiService, IBrowserStorageService browserStorageService) : IAuthService
+public class AuthService(
+    IHttpApiService httpApiService, 
+    IBrowserStorageService browserStorageService,
+    IPasswordHasher passwordHasher) : IAuthService
 {
     private const string AuthBaseUrl = "/auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
@@ -30,9 +34,22 @@ public class AuthService(IHttpApiService httpApiService, IBrowserStorageService 
         return token == null ? null : JwtParser.ToClaimsPrincipal(token);
     }
 
-    public async Task<bool> RegisterAsync(RegisterViewModel registerRequest)
+    public async Task<bool> RegisterAsync(RegisterViewModel registerViewModel)
     {
-        var response = await httpApiService.PostAsync<string>(RegisterUrl, registerRequest);
+        if (string.IsNullOrEmpty(registerViewModel.MasterPassword))
+            return false;
+        
+        var masterPasswordHash = await passwordHasher.HashPassword(registerViewModel.MasterPassword);
+        var request = new RegisterRequest()
+        {
+            Email = registerViewModel.Email,
+            Name = registerViewModel.Name,
+            Password = registerViewModel.Password,
+            ConfirmPassword = registerViewModel.ConfirmPassword,
+            MasterPasswordHash = masterPasswordHash
+        };
+        
+        var response = await httpApiService.PostAsync<string>(RegisterUrl, request);
         return response != null;
     }
     

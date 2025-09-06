@@ -12,7 +12,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped<IHttpApiService, HttpApiService>(x => new HttpApiService("http://localhost:5000")); //TODO: change URL!
+builder.Services.AddScoped<IHttpApiService, HttpApiService>(x => new HttpApiService("http://localhost:7139"));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();

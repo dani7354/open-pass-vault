@@ -1,0 +1,15 @@
+networks:
+  localnetwork:
+    name: openpassvault_local
+services:
+  db:
+    image: mysql:8.4.0
+    command: --mysql-native-password=ON
+    restart: always
+    env_file: Docker/db.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./Docker/db/data:/var/lib/mysql
+    networks:
+      - localnetwork
