@@ -1,18 +1,17 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 using OpenPassVault.Shared.DTO;
-using OpenPassVault.Web.Helpers;
 using OpenPassVault.Web.Models;
 using OpenPassVault.Web.Services.Interfaces;
 
 namespace OpenPassVault.Web.Providers;
 
-public class JwtAuthenticationProvider : AuthenticationStateProvider
+public class JwtAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly IAuthService _authService;
     public User? CurrentUser { get; private set; }
 
-    public JwtAuthenticationProvider(IAuthService authService)
+    public JwtAuthenticationStateProvider(IAuthService authService)
     {
         _authService = authService;
         AuthenticationStateChanged += OnAuthenticationStateChangedAsync;

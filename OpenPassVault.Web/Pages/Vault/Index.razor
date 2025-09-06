@@ -1,7 +1,7 @@
 @page "/vault"
 @using OpenPassVault.Web.Providers
 
-@inject JwtAuthenticationProvider AuthenticationStateProvider
+@inject JwtAuthenticationStateProvider AuthenticationStateStateProvider
 @inject NavigationManager NavigationManager
 
 <h3>Index</h3>
@@ -10,9 +10,9 @@
 
     protected override void OnInitialized()
     {
-        if (AuthenticationStateProvider.CurrentUser == null)
+        if (AuthenticationStateStateProvider.CurrentUser == null)
         {
-            NavigationManager.NavigateTo("/login");
+            NavigationManager.NavigateTo(Urls.Login);
         }
     }
 }

@@ -2,7 +2,7 @@
 @using OpenPassVault.Shared.DTO
 @using OpenPassVault.Web.Providers
 @inject NavigationManager NavigationManager
-@inject JwtAuthenticationProvider AuthenticationStateProvider
+@inject JwtAuthenticationStateProvider AuthenticationStateStateProvider
 
 <PageTitle>Log ind</PageTitle>
 
@@ -29,7 +29,7 @@
                     }
                     Log ind
                 </button>
-                <NavLink href="/register" class="btn btn-link">Mangler du en konto? Opret dig!</NavLink>
+                <NavLink href="@Urls.Register" class="btn btn-link">Mangler du en konto? Opret dig!</NavLink>
             </div>
         </EditForm>
     </div>
@@ -41,23 +41,22 @@
     
     protected override void OnInitialized()
     {
-        // redirect to home if already logged in
-        if (AuthenticationStateProvider.CurrentUser != null)
+        if (AuthenticationStateStateProvider.CurrentUser != null)
         {
-            NavigationManager.NavigateTo("/vault");
+            NavigationManager.NavigateTo(Urls.VaultIndex);
         }
     }
 
     private async void OnValidSubmit(EditContext editContext)
     {
         loading = true;
-        await AuthenticationStateProvider.AuthenticateUser(model);
+        await AuthenticationStateStateProvider.AuthenticateUser(model);
         loading = false;
         StateHasChanged();
         
-        if (AuthenticationStateProvider.CurrentUser == null)
+        if (AuthenticationStateStateProvider.CurrentUser == null)
         {
-            NavigationManager.NavigateTo("/vault");
+            NavigationManager.NavigateTo(Urls.VaultIndex);
         }
         else
         {

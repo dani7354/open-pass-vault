@@ -13,8 +13,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<IHttpApiService, HttpApiService>(x => new HttpApiService("http://localhost:5000")); //TODO: change URL!
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
-builder.Services.AddScoped<JwtAuthenticationProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(x =>  x.GetRequiredService<JwtAuthenticationProvider>());
+builder.Services.AddScoped<JwtAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(x =>  x.GetRequiredService<JwtAuthenticationStateProvider>());
 builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();
