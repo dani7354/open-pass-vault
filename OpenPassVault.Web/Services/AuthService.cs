@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using OpenPassVault.Shared.DTO;
+using OpenPassVault.Web.Helpers;
 using OpenPassVault.Web.Services.Interfaces;
 
 namespace OpenPassVault.Web.Services;
@@ -21,9 +23,10 @@ public class AuthService(IHttpApiService httpApiService, IBrowserStorageService 
         return true;
     }
 
-    public Task<string?> GetPersistedTokenAsync()
+    public async Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken()
     {
-        return browserStorageService.GetItem<string>(ApiTokenKey);
+        var token = await browserStorageService.GetItem<string>(ApiTokenKey);
+        return token == null ? null : JwtParser.ToClaimsPrincipal(token);
     }
 
     public async Task<bool> RegisterAsync(RegisterRequest registerRequest)

@@ -1,7 +1,8 @@
 @page "/login"
 @using OpenPassVault.Shared.DTO
+@using OpenPassVault.Web.Providers
 @inject NavigationManager NavigationManager
-@inject OpenPassVault.Web.Services.Interfaces.IBrowserStorageService BrowserStorageService
+@inject JwtAuthenticationProvider AuthenticationStateProvider
 
 <PageTitle>Log ind</PageTitle>
 
@@ -37,20 +38,35 @@
 @code {
     private LoginRequest model = new();
     private bool loading;
-
-    private async void OnValidSubmit()
-    {
-        loading = true;
-        
-    }
-
+    
     protected override void OnInitialized()
     {
-        BrowserStorageService.SetItem<string>("test", "test");
-        base.OnInitialized();
-        
+        // redirect to home if already logged in
+        if (AuthenticationStateProvider.CurrentUser != null)
+        {
+            NavigationManager.NavigateTo("/vault");
+        }
     }
 
+    private async void OnValidSubmit(EditContext editContext)
+    {
+        loading = true;
+        await AuthenticationStateProvider.AuthenticateUser(model);
+        loading = false;
+        StateHasChanged();
+        
+        if (AuthenticationStateProvider.CurrentUser == null)
+        {
+            NavigationManager.NavigateTo("/vault");
+        }
+        else
+        {
+            var messageStore = new ValidationMessageStore(editContext);
+            messageStore.Add(() => model.Email!, "");
+            messageStore.Add(() => model.Password!, "Log ind mislykkedes!");
+            editContext.NotifyValidationStateChanged();
+        }
+    }
 }
 
 

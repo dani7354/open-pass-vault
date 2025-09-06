@@ -1,25 +1,57 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
+using OpenPassVault.Shared.DTO;
+using OpenPassVault.Web.Helpers;
+using OpenPassVault.Web.Models;
 using OpenPassVault.Web.Services.Interfaces;
 
 namespace OpenPassVault.Web.Providers;
 
-public class JwtAuthenticationProvider(IAuthService authService) : AuthenticationStateProvider
+public class JwtAuthenticationProvider : AuthenticationStateProvider
 {
-    private readonly IAuthService _authService = authService;
+    private readonly IAuthService _authService;
+    public User? CurrentUser { get; private set; }
 
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    public JwtAuthenticationProvider(IAuthService authService)
     {
-        // var tokenHandler = new JwtSecurityTokenHandler();
-        //var identity = new ClaimsIdentity();
+        _authService = authService;
+        AuthenticationStateChanged += OnAuthenticationStateChangedAsync;
+    }
+    
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync() // TODO: implement
+    {
+        var principal = await _authService.GetClaimsPrincipalFromToken() ?? new ClaimsPrincipal();
+        return new AuthenticationState(principal);
+    }
 
-        /*
-        if (tokenHandler.CanReadToken(token))
+    public async Task AuthenticateUser(LoginRequest loginRequest)
+    {
+        var principal = new ClaimsPrincipal();
+        
+        //var success = await _authService.LoginAsync(loginRequest);
+        var success = true;
+        if (success)
         {
-            var jwtSecurityToken = tokenHandler.ReadJwtToken(token);
-            identity = new(jwtSecurityToken.Claims, "Blazor School");
+            principal = await _authService.GetClaimsPrincipalFromToken() ?? new ClaimsPrincipal();
         }
+        
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
+    }
 
-        return new(identity);*/
+    public async Task Logout()
+    {
+        CurrentUser = null;
+        await _authService.LogoutAsync();
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
+    
+    private async void OnAuthenticationStateChangedAsync(Task<AuthenticationState> task)
+    {
+        var authenticationState = await task;
+
+        if (authenticationState != null)
+        {
+            CurrentUser = new User(Name: "Daniel", Email: "d@stuhrs.dk");
+        }
     }
 }

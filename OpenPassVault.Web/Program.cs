@@ -10,16 +10,11 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped<IHttpApiService, HttpApiService>();
+builder.Services.AddScoped<IHttpApiService, HttpApiService>(x => new HttpApiService("http://localhost:5000")); //TODO: change URL!
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
-// builder.Services.AddSingleton<AuthenticationStateProvider, JwtAuthenticationProvider>();
-
-builder.Services.AddOidcAuthentication(options =>
-{
-    // Configure your authentication provider options here.
-    // For more information, see https://aka.ms/blazor-standalone-auth
-    builder.Configuration.Bind("Local", options.ProviderOptions);
-});
+builder.Services.AddScoped<JwtAuthenticationProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(x =>  x.GetRequiredService<JwtAuthenticationProvider>());
+builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();
