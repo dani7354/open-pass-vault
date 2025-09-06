@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using OpenPassVault.Shared.Crypto;
+using OpenPassVault.Shared.Crypto.Interfaces;
 using OpenPassVault.Web;
 using OpenPassVault.Web.Providers;
 using OpenPassVault.Web.Services;
@@ -15,6 +17,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(x =>  x.GetRequiredService<JwtAuthenticationStateProvider>());
+
+builder.Services.AddScoped<ISymmetricKeyGenerator, KeyGenerator>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+
 builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();
