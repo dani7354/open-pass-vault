@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using OpenPassVault.API.Data.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OpenPassVault.API.Data.DataContext;
+using OpenPassVault.API.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +14,36 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDbContext<DatabaseContext>(options => options.UseMySql("", ServerVersion.AutoDetect("")));
-builder.Services.AddIdentity<ApiUser, IdentityRole>();
+
+EnvironmentHelper.LoadVariablesFromEnvFile();
+var dbConnectionString = EnvironmentHelper.GetConnectionString();
+builder.Services.AddDbContext<ApplicationDatabaseContext>(
+    options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString)));
+
+//builder.Services.AddIdentityApiEndpoints<ApiUser>()
+//    .AddEntityFrameworkStores<ApplicationDatabaseContext>();
+
+builder.Services.AddIdentity<ApiUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDatabaseContext>();
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = true;
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(EnvironmentHelper.GetJwtSigningKey()),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        RequireExpirationTime = false,
+        ValidateLifetime = true
+    };
+});
+    
 
 var app = builder.Build();
 
@@ -23,6 +54,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

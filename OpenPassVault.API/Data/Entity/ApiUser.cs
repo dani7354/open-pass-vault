@@ -5,6 +5,6 @@ namespace OpenPassVault.API.Data.Entity;
 
 public class ApiUser : IdentityUser
 {
-    [MaxLength(50)]
+    [MaxLength(100)]
     public string MasterPasswordHash { get; set; } = string.Empty;
 }
