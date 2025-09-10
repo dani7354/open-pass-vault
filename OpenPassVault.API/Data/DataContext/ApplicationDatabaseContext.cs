@@ -8,6 +8,7 @@ namespace OpenPassVault.API.Data.DataContext;
 public class ApplicationDatabaseContext(DbContextOptions<ApplicationDatabaseContext> options) : IdentityDbContext<ApiUser>(options)
 {
     public virtual DbSet<ApiUser> ApiUser { get; set; } = null!;
+    public virtual DbSet<Secret> Secret { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
