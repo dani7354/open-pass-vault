@@ -15,6 +15,9 @@ public class Secret
     [MaxLength(255), Required] 
     public string Name { get; set; } = null!;
     
+    [MaxLength(255)] 
+    public string? Username { get; set; }
+    
     [MaxLength(512)]
     public string? Description { get; set; }
 

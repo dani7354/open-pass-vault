@@ -4,6 +4,8 @@ using OpenPassVault.API.Data.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenPassVault.API.Data.DataContext;
+using OpenPassVault.API.Data.Interfaces;
+using OpenPassVault.API.Data.Repository;
 using OpenPassVault.API.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,8 @@ EnvironmentHelper.LoadVariablesFromEnvFile();
 var dbConnectionString = EnvironmentHelper.GetConnectionString();
 builder.Services.AddDbContext<ApplicationDatabaseContext>(
     options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString)));
+
+builder.Services.AddScoped<ISecretRepository, SecretRepository>();
 
 //builder.Services.AddIdentityApiEndpoints<ApiUser>()
 //    .AddEntityFrameworkStores<ApplicationDatabaseContext>();
