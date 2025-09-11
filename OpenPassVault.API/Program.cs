@@ -16,6 +16,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 
 EnvironmentHelper.LoadVariablesFromEnvFile();
 var dbConnectionString = EnvironmentHelper.GetConnectionString();

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using OpenPassVault.API.Data.Entity;
+using OpenPassVault.API.Helpers;
 
 namespace OpenPassVault.API.Data.DataContext;
 
@@ -21,5 +22,14 @@ public class ApplicationDatabaseContext(DbContextOptions<ApplicationDatabaseCont
         modelBuilder.Entity<IdentityUserToken<string>>().ToTable("ApiUserToken").HasKey(x => x.UserId);
         modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaim").HasKey(x => x.Id);
         modelBuilder.Entity<IdentityRole>().ToTable("Role").HasKey(x => x.Id); ;
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        
+        EnvironmentHelper.LoadVariablesFromEnvFile();
+        var connectionString = EnvironmentHelper.GetConnectionString();
+        optionsBuilder.UseMySql(connectionString, MySqlServerVersion.AutoDetect(connectionString));
     }
 }

@@ -1,50 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OpenPassVault.API.Data.DataContext;
+using OpenPassVault.API.Data.Entity;
 using OpenPassVault.API.Data.Interfaces;
-using OpenPassVault.Shared.DTO;
 
 namespace OpenPassVault.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SecretController(ISecretRepository secretRepository) : ControllerBase
+    public class SecretController(ISecretRepository secretRepository, UserManager<ApiUser> userManager) : ControllerBase
     {
-        // GET: api/<SecretController>
+        // GET: api/Secret
         [HttpGet]
         [Authorize]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<IEnumerable<Secret>>> GetSecret()
         {
-            return new string[] { "value1", "value2" };
+            return Ok();
         }
 
-        // GET api/<SecretController>/5
+        // GET: api/Secret/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get([FromRoute] string id)
+        public async Task<ActionResult<Secret>> GetSecret(string id)
         {
-            var secret = await secretRepository.GetById(id);
-            throw new NotImplementedException();
+            return Ok();
         }
 
-        // POST api/<SecretController>
+        // PUT: api/Secret/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutSecret(string id, Secret secret)
+        {
+            return NoContent();
+        }
+
+        // POST: api/Secret
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Secret createSecretRequest)
+        public async Task<ActionResult<Secret>> PostSecret(Secret secret)
         {
-            //await secretRepository.Add()
-            throw new NotImplementedException();
+            return CreatedAtAction("GetSecret", new { id = secret.Id }, secret);
         }
 
-        // PUT api/<SecretController>/5
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> Update(int id, [FromBody] string value)
-        //{
-        //}
-
-        // DELETE api/<SecretController>/5
+        // DELETE: api/Secret/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> DeleteSecret(string id)
         {
-            await secretRepository.Delete(id);
             return Ok();
         }
     }
