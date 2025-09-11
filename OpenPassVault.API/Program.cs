@@ -7,6 +7,8 @@ using OpenPassVault.API.Data.DataContext;
 using OpenPassVault.API.Data.Interfaces;
 using OpenPassVault.API.Data.Repository;
 using OpenPassVault.API.Helpers;
+using OpenPassVault.API.Services;
+using OpenPassVault.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,7 @@ builder.Services.AddDbContext<ApplicationDatabaseContext>(
     options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString)));
 
 builder.Services.AddScoped<ISecretRepository, SecretRepository>();
+builder.Services.AddScoped<ISecretService, SecretService>();
 
 //builder.Services.AddIdentityApiEndpoints<ApiUser>()
 //    .AddEntityFrameworkStores<ApplicationDatabaseContext>();

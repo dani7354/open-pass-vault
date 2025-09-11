@@ -24,9 +24,15 @@ public class SecretRepository(ApplicationDatabaseContext dbContext) : ISecretRep
         return newSecret.Entity.Id;
     }
 
-    public async Task Update(Secret entity)
+    public Task Update(Secret entity)
     {
-        var secretEntity =  await dbContext.Secret.FindAsync(entity.Id);
+        throw new NotImplementedException();
+    }
+
+    public async Task Update(Secret entity, string userId)
+    {
+        var secretEntity =  await dbContext.Secret.FirstOrDefaultAsync(
+            x => x.Id == entity.Id && x.UserId == userId);
         if (secretEntity == null)
             throw new NotFoundException();
         
@@ -52,5 +58,10 @@ public class SecretRepository(ApplicationDatabaseContext dbContext) : ISecretRep
     public async Task<IList<Secret>> ListForUser(string userId)
     {
         return await dbContext.Secret.Where(s => s.UserId == userId).ToListAsync();
+    }
+
+    public async Task<Secret?> GetSecret(string id, string userId)
+    {
+        return await dbContext.Secret.FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
     }
 }

@@ -1,57 +1,85 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OpenPassVault.API.Data.DataContext;
 using OpenPassVault.API.Data.Entity;
-using OpenPassVault.API.Data.Interfaces;
+using OpenPassVault.API.Services.Interfaces;
+using OpenPassVault.Shared.DTO;
+using Secret = OpenPassVault.API.Data.Entity.Secret;
 
 namespace OpenPassVault.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/secrets")]
     [ApiController]
-    public class SecretController(ISecretRepository secretRepository, UserManager<ApiUser> userManager) : ControllerBase
+    [Authorize]
+    public class SecretController(ISecretService secretService, UserManager<ApiUser> userManager) : ControllerBase
     {
-        // GET: api/Secret
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Secret>>> GetSecret()
+        public async Task<ActionResult> Secrets()
         {
-            return Ok();
+            var secretsForUser = await userManager.GetUserAsync(HttpContext.User);
+            if (secretsForUser == null)
+                return Unauthorized();
+            
+            var secrets = await secretService.ListAsync(secretsForUser.Id);
+            return Ok(secrets);
         }
 
-        // GET: api/Secret/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Secret>> GetSecret(string id)
+        [Authorize]
+        public async Task<ActionResult<Secret>> Secret(string id)
         {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+            if (user == null)
+                return Unauthorized();
+            
+            var secretDetails = secretService.GetAsync(id, user.Id);
+            return Ok(secretDetails);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> Update(string id, SecretUpdateRequest updateRequest)
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+            if (user == null)
+                return Unauthorized();
+            
+            if (id != updateRequest.Id)
+                return BadRequest("Id in URL does not match Id in body");
+            
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await secretService.UpdateAsync(updateRequest, id);
             return Ok();
         }
 
-        // PUT: api/Secret/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSecret(string id, Secret secret)
-        {
-            return NoContent();
-        }
-
-        // POST: api/Secret
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Secret>> PostSecret(Secret secret)
+        [Authorize]
+        public async Task<ActionResult> Create(SecretCreateRequest createRequest)
         {
-            return CreatedAtAction("GetSecret", new { id = secret.Id }, secret);
+            var user = await userManager.GetUserAsync(HttpContext.User);
+            if (user == null)
+                return Unauthorized();
+            
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var secretId = await secretService.CreateAsync(createRequest, user.Id);
+            var secret = await secretService.GetAsync(secretId, user.Id);
+            
+            return CreatedAtAction("Secrets", new { id = secretId }, secret);
         }
 
-        // DELETE: api/Secret/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSecret(string id)
+        public async Task<IActionResult> Delete(string id)
         {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+            if (user == null)
+                return Unauthorized();
+            
+            await secretService.DeleteAsync(id, user.Id);
             return Ok();
         }
     }
