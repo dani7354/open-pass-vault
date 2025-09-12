@@ -2,85 +2,103 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenPassVault.API.Data.Entity;
+using OpenPassVault.API.Data.Exceptions;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.Shared.DTO;
 using Secret = OpenPassVault.API.Data.Entity.Secret;
 
-namespace OpenPassVault.API.Controllers
+namespace OpenPassVault.API.Controllers;
+[Route("api/secrets")]
+[ApiController]
+[Authorize]
+public class SecretController(ISecretService secretService, UserManager<ApiUser> userManager) : ControllerBase
 {
-    [Route("api/secrets")]
-    [ApiController]
+    [HttpGet]
     [Authorize]
-    public class SecretController(ISecretService secretService, UserManager<ApiUser> userManager) : ControllerBase
+    public async Task<ActionResult> Secrets()
     {
-        [HttpGet]
-        [Authorize]
-        public async Task<ActionResult> Secrets()
-        {
-            var secretsForUser = await userManager.GetUserAsync(HttpContext.User);
-            if (secretsForUser == null)
-                return Unauthorized();
-            
-            var secrets = await secretService.ListAsync(secretsForUser.Id);
-            return Ok(secrets);
-        }
+        var secretsForUser = await userManager.GetUserAsync(HttpContext.User);
+        if (secretsForUser == null)
+            return Unauthorized();
+        
+        var secrets = await secretService.ListAsync(secretsForUser.Id);
+        return Ok(secrets);
+    }
 
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<ActionResult<Secret>> Secret(string id)
-        {
-            var user = await userManager.GetUserAsync(HttpContext.User);
-            if (user == null)
-                return Unauthorized();
-            
-            var secretDetails = secretService.GetAsync(id, user.Id);
-            return Ok(secretDetails);
-        }
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<ActionResult<Secret>> Secret(string id)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        var secretDetails = await secretService.GetAsync(id, user.Id);
+        if (secretDetails == null)
+            return NotFound();
+        
+        return Ok(secretDetails);
+    }
 
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<IActionResult> Update(string id, SecretUpdateRequest updateRequest)
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> Update(string id, SecretUpdateRequest updateRequest)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        if (id != updateRequest.Id)
+            return BadRequest("Id in URL does not match Id in body");
+        
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        try
         {
-            var user = await userManager.GetUserAsync(HttpContext.User);
-            if (user == null)
-                return Unauthorized();
-            
-            if (id != updateRequest.Id)
-                return BadRequest("Id in URL does not match Id in body");
-            
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             await secretService.UpdateAsync(updateRequest, id);
-            return Ok();
+        }
+        catch (NotFoundException)
+        {
+            return BadRequest();
         }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<ActionResult> Create(SecretCreateRequest createRequest)
-        {
-            var user = await userManager.GetUserAsync(HttpContext.User);
-            if (user == null)
-                return Unauthorized();
-            
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        return Ok();
+    }
 
-            var secretId = await secretService.CreateAsync(createRequest, user.Id);
-            var secret = await secretService.GetAsync(secretId, user.Id);
-            
-            return CreatedAtAction("Secrets", new { id = secretId }, secret);
-        }
+    [HttpPost]
+    [Authorize]
+    public async Task<ActionResult> Create(SecretCreateRequest createRequest)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        var secretId = await secretService.CreateAsync(createRequest, user.Id);
+        var secret = await secretService.GetAsync(secretId, user.Id);
+        
+        return CreatedAtAction("Secrets", new { id = secretId }, secret);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+
+        try
         {
-            var user = await userManager.GetUserAsync(HttpContext.User);
-            if (user == null)
-                return Unauthorized();
-            
             await secretService.DeleteAsync(id, user.Id);
-            return Ok();
         }
+        catch(NotFoundException)
+        {
+            return NotFound();
+        }
+        
+        return Ok();
     }
 }
