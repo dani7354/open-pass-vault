@@ -10,6 +10,9 @@ public static class EnvironmentHelper
     private const string MysqlPassword = "MYSQL_PASSWORD";
     
     private const string JwtSigningKey = "JWT_SIGNING_KEY";
+    private const string JwtIssuer = "JWT_ISSUER";
+    private const string JwtAudience = "JWT_AUDIENCE";
+    
     
     public static void LoadVariablesFromEnvFile()
     {
@@ -46,5 +49,17 @@ public static class EnvironmentHelper
         var signingKey = Environment.GetEnvironmentVariable(JwtSigningKey);
         return string.IsNullOrEmpty(signingKey) ? 
             throw new KeyNotFoundException($"{JwtSigningKey} not set!") : Convert.FromHexString(signingKey);
+    }
+    
+    public static string GetJwtAudience()
+    {
+        return Environment.GetEnvironmentVariable(JwtAudience) ?? 
+               throw new KeyNotFoundException($"{JwtAudience} not set!");
+    }
+    
+    public static string GetJwtIssuer()
+    {
+        return Environment.GetEnvironmentVariable(JwtIssuer) ?? 
+               throw new KeyNotFoundException($"{JwtIssuer} not set!");
     }
 }

@@ -11,7 +11,7 @@ namespace OpenPassVault.API.Controllers;
 [Route("api/secrets")]
 [ApiController]
 [Authorize]
-public class SecretController(ISecretService secretService, UserManager<ApiUser> userManager) : ControllerBase
+public sealed class SecretController(ISecretService secretService, UserManager<ApiUser> userManager) : ControllerBase
 {
     [HttpGet]
     [Authorize]

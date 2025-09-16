@@ -4,17 +4,15 @@ namespace OpenPassVault.Shared.DTO;
 
 public class RegisterRequest
 {
-    [Required, MaxLength(256)] public string? Name { get; set; }
-
     [Required, EmailAddress, MaxLength(256)]
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
 
     [Required, MinLength(12), MaxLength(256)]
-    public string? Password { get; set; }
+    public string Password { get; set; } = null!;
 
     [Required, Compare(nameof(Password))] 
-    public string? ConfirmPassword { get; set; }
+    public string ConfirmPassword { get; set; } = null!;
 
-    [Required, MaxLength(256)]
-    public string? MasterPasswordHash { get; set; }
+    [Required, MaxLength(256)] 
+    public string MasterPasswordHash { get; set; } = null!;
 }

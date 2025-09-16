@@ -14,7 +14,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped<IHttpApiService, HttpApiService>(x => new HttpApiService("http://localhost:7139"));
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
+builder.Services.AddScoped<IMemoryStorageService, MemoryStorageService>();
 builder.Services.AddScoped<JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(x =>  x.GetRequiredService<JwtAuthenticationStateProvider>());
 

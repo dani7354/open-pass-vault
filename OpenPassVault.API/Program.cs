@@ -28,6 +28,12 @@ builder.Services.AddDbContext<ApplicationDatabaseContext>(
 builder.Services.AddScoped<ISecretRepository, SecretRepository>();
 builder.Services.AddScoped<ISecretService, SecretService>();
 
+var signingToken = EnvironmentHelper.GetJwtSigningKey();
+var tokenIssuer = EnvironmentHelper.GetJwtIssuer();
+var tokenAudience = EnvironmentHelper.GetJwtAudience();
+builder.Services.AddScoped<ITokenService, TokenService>(
+    _ => new TokenService(signingToken, tokenAudience, tokenIssuer));
+
 //builder.Services.AddIdentityApiEndpoints<ApiUser>()
 //    .AddEntityFrameworkStores<ApplicationDatabaseContext>();
 

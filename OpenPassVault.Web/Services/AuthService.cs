@@ -42,10 +42,9 @@ public class AuthService(
         var masterPasswordHash = await passwordHasher.HashPassword(registerViewModel.MasterPassword);
         var request = new RegisterRequest()
         {
-            Email = registerViewModel.Email,
-            Name = registerViewModel.Name,
-            Password = registerViewModel.Password,
-            ConfirmPassword = registerViewModel.ConfirmPassword,
+            Email = registerViewModel.Email!,
+            Password = registerViewModel.Password!,
+            ConfirmPassword = registerViewModel.ConfirmPassword!,
             MasterPasswordHash = masterPasswordHash
         };
         
