@@ -17,22 +17,15 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
         AuthenticationStateChanged += OnAuthenticationStateChangedAsync;
     }
     
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync() // TODO: implement
+    public override Task<AuthenticationState> GetAuthenticationStateAsync() // TODO: implement
     {
-        var principal = await _authService.GetClaimsPrincipalFromToken() ?? new ClaimsPrincipal();
-        return new AuthenticationState(principal);
+        var principal = _authService.GetClaimsPrincipalFromToken() ?? new ClaimsPrincipal();
+        return Task.FromResult(new AuthenticationState(principal));
     }
 
     public async Task AuthenticateUser(LoginRequest loginRequest)
     {
-        var principal = new ClaimsPrincipal();
-        
-        //var success = await _authService.LoginAsync(loginRequest);
-        var success = true;
-        if (success)
-        {
-            principal = await _authService.GetClaimsPrincipalFromToken() ?? new ClaimsPrincipal();
-        }
+        var principal = await _authService.LoginAsync(loginRequest) ?? new ClaimsPrincipal();
         
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
     }
@@ -40,7 +33,7 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     public async Task Logout()
     {
         CurrentUser = null;
-        await _authService.LogoutAsync();
+        _authService.LogoutAsync();
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
     

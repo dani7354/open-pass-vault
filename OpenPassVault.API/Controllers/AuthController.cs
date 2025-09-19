@@ -12,9 +12,10 @@ public sealed class AuthController(
     ILogger<AuthController> logger,
     UserManager<ApiUser> userManager,
     SignInManager<ApiUser> signInManager,
-    ITokenService tokenService,
-    IConfiguration configuration) : ControllerBase
+    ITokenService tokenService) : ControllerBase
 {
+    
+    [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody]LoginRequest loginRequest)
     {
         if (!ModelState.IsValid)
@@ -36,12 +37,16 @@ public sealed class AuthController(
 
             var userClaims = await userManager.GetClaimsAsync(user);
 
-            return Ok();
+            var token = tokenService.CreateToken(user, userClaims);
+            var tokenResponse = new TokenResponse(token);
+
+            return Ok(tokenResponse);
         }
 
         return Unauthorized();
     }
-
+    
+    [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
         if (!ModelState.IsValid)
@@ -59,9 +64,7 @@ public sealed class AuthController(
 
         var result = await userManager.CreateAsync(user, registerRequest.Password);
         if (!result.Succeeded)
-        {
             return BadRequest($"Failed to create user {username}!");
-        }
         
         return Ok();
     }

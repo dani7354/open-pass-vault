@@ -12,11 +12,6 @@
     <div class="card-body">
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
             <DataAnnotationsValidator />
-            <div class="form-group">
-                <label>Fulde navn</label>
-                <InputText @bind-Value="model.Name" class="form-control" />
-                <ValidationMessage For="@(() => model.Name)" />
-            </div>
             <div class="form-group mt-2">
                 <label>Email</label>
                 <InputText @bind-Value="model.Email" class="form-control" />
@@ -43,7 +38,7 @@
                 <ValidationMessage For="@(() => model.ConfirmMasterPassword)" />
             </div>
             <div class="mt-4">
-                <button disabled="@loading" class="btn btn-primary">
+                <button disabled="@loading" type="submit" class="btn btn-primary">
                     @if (loading) 
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
@@ -56,10 +51,11 @@
     </div>
 </div>
 
+
 @code {
     private RegisterViewModel model = new();
     private bool loading;
-
+    
     protected override void OnInitialized()
     {
         if (AuthenticationStateProvider.CurrentUser != null)
@@ -68,13 +64,13 @@
         }
     }
 
-    private async void OnValidSubmit(EditContext editContext)
+    private async Task OnValidSubmit(EditContext editContext)
     {
         loading = true;
         var success = await AuthService.RegisterAsync(model);
         loading = false;
         StateHasChanged();
-
+    
         if (success)
         {
             NavigationManager.NavigateTo(Urls.Login);
@@ -82,12 +78,11 @@
         else
         {
             var messageStore = new ValidationMessageStore(editContext);
-            messageStore.Add(() => model.Name!, "");
-            messageStore.Add(() => model.Email!, "");
-            messageStore.Add(() => model.Password!, "");
-            messageStore.Add(() => model.ConfirmPassword!, "");
-            messageStore.Add(() => model.MasterPassword!, "");
-            messageStore.Add(() => model.ConfirmMasterPassword!, "Oprettelse mislykkedes!");
+            messageStore.Add(() => model.Email, "");
+            messageStore.Add(() => model.Password, "");
+            messageStore.Add(() => model.ConfirmPassword, "");
+            messageStore.Add(() => model.MasterPassword, "");
+            messageStore.Add(() => model.ConfirmMasterPassword, "Oprettelse mislykkedes!");
             editContext.NotifyValidationStateChanged();
         }
     }

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using OpenPassVault.API.Data.Entity;
 using OpenPassVault.API.Services.Interfaces;
+using OpenPassVault.Shared.Auth;
 
 namespace OpenPassVault.API.Services;
 
@@ -25,11 +26,15 @@ public class TokenService : ITokenService
     {
         var userId = user.Id;
         var userName = user.UserName!;
+        var email = user.Email!;
+        var masterPasswordHash = user.MasterPasswordHash;
 
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.NameId, userId),
-            new(JwtRegisteredClaimNames.UniqueName, userName)
+            new(JwtRegisteredClaimNames.UniqueName, userName),
+            new (JwtRegisteredClaimNames.Email, email),
+            new (JwtClaimType.TokenMasterPasswordHashClaimType, masterPasswordHash)
         };
 
         claims.AddRange(userClaims);

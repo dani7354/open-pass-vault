@@ -9,28 +9,28 @@ namespace OpenPassVault.Web.Services;
 
 public class AuthService(
     IHttpApiService httpApiService, 
-    IBrowserStorageService browserStorageService,
+    IMemoryStorageService memoryStorageService,
     IPasswordHasher passwordHasher) : IAuthService
 {
-    private const string AuthBaseUrl = "/auth";
+    private const string AuthBaseUrl = "auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
     private const string RegisterUrl = $"{AuthBaseUrl}/register";
 
     private const string ApiTokenKey = "OpenPassVault.API";
 
-    public async Task<bool> LoginAsync(LoginRequest loginRequest)
+    public async Task<ClaimsPrincipal?> LoginAsync(LoginRequest loginRequest)
     {
         var response = await httpApiService.PostAsync<TokenResponse>(LoginUrl, loginRequest);
         if (response == null)
-            return false;
+            return null;
         
-        await browserStorageService.SetItem(ApiTokenKey, response.Token);
-        return true;
+        memoryStorageService.SetItem(ApiTokenKey, response.Token);
+        return GetClaimsPrincipalFromToken();
     }
 
-    public async Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken()
+    public ClaimsPrincipal? GetClaimsPrincipalFromToken()
     {
-        var token = await browserStorageService.GetItem<string>(ApiTokenKey);
+        var token = memoryStorageService.GetItem<string>(ApiTokenKey);
         return token == null ? null : JwtParser.ToClaimsPrincipal(token);
     }
 
@@ -47,13 +47,14 @@ public class AuthService(
             ConfirmPassword = registerViewModel.ConfirmPassword!,
             MasterPasswordHash = masterPasswordHash
         };
+        Console.WriteLine("Sending registration request for " + request.Email);
         
-        var response = await httpApiService.PostAsync<string>(RegisterUrl, request);
-        return response != null;
-    }
+        await httpApiService.PostAsync<string>(RegisterUrl, request);
+        return true;
+    }   
     
-    public async Task LogoutAsync()
+    public void LogoutAsync()
     {
-        await browserStorageService.RemoveItem(ApiTokenKey);
+        memoryStorageService.RemoveItem(ApiTokenKey);
     }
 }

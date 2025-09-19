@@ -16,6 +16,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(p => 
+        p.WithOrigins("http://localhost:5000")
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+}); 
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
@@ -34,10 +42,15 @@ var tokenAudience = EnvironmentHelper.GetJwtAudience();
 builder.Services.AddScoped<ITokenService, TokenService>(
     _ => new TokenService(signingToken, tokenAudience, tokenIssuer));
 
-//builder.Services.AddIdentityApiEndpoints<ApiUser>()
-//    .AddEntityFrameworkStores<ApplicationDatabaseContext>();
+builder.Services.AddIdentity<ApiUser, IdentityRole>(o =>
+{
+    o.Password.RequireDigit = false;
+    o.Password.RequireLowercase = false;
+    o.Password.RequireUppercase = false;
+    o.Password.RequireNonAlphanumeric = false;
+    o.Password.RequiredLength = 16;
+}).AddEntityFrameworkStores<ApplicationDatabaseContext>();
 
-builder.Services.AddIdentity<ApiUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDatabaseContext>();
 builder.Services.AddAuthentication(o =>
 {
     o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -50,14 +63,13 @@ builder.Services.AddAuthentication(o =>
     o.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(EnvironmentHelper.GetJwtSigningKey()),
+        IssuerSigningKey = new SymmetricSecurityKey(signingToken),
         ValidateIssuer = false,
         ValidateAudience = false,
         RequireExpirationTime = false,
         ValidateLifetime = true
     };
 });
-    
 
 var app = builder.Build();
 
@@ -67,6 +79,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

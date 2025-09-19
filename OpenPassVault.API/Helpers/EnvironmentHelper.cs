@@ -13,7 +13,6 @@ public static class EnvironmentHelper
     private const string JwtIssuer = "JWT_ISSUER";
     private const string JwtAudience = "JWT_AUDIENCE";
     
-    
     public static void LoadVariablesFromEnvFile()
     {
         if (Environment.GetEnvironmentVariable(Constants.AspNetCodeEnvironment) == Constants.ProductionEnvironment)
