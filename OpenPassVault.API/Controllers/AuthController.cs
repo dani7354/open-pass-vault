@@ -38,7 +38,7 @@ public sealed class AuthController(
             var userClaims = await userManager.GetClaimsAsync(user);
 
             var token = tokenService.CreateToken(user, userClaims);
-            var tokenResponse = new TokenResponse(token);
+            var tokenResponse = new TokenResponse {Token = token};
 
             return Ok(tokenResponse);
         }

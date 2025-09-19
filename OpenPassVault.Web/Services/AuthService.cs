@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Security.Claims;
+using Blazored.SessionStorage;
 using OpenPassVault.Shared.Crypto.Interfaces;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Web.Helpers;
@@ -9,29 +11,42 @@ namespace OpenPassVault.Web.Services;
 
 public class AuthService(
     IHttpApiService httpApiService, 
+    ISessionStorageService sessionStorageService,
     IMemoryStorageService memoryStorageService,
-    IPasswordHasher passwordHasher) : IAuthService
+    IPasswordHasher passwordHasher,
+    ILogger<AuthService> logger) : IAuthService
 {
     private const string AuthBaseUrl = "auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
     private const string RegisterUrl = $"{AuthBaseUrl}/register";
 
     private const string ApiTokenKey = "OpenPassVault.API";
-
+    
     public async Task<ClaimsPrincipal?> LoginAsync(LoginRequest loginRequest)
     {
         var response = await httpApiService.PostAsync<TokenResponse>(LoginUrl, loginRequest);
         if (response == null)
             return null;
-        
+        logger.LogInformation($"Storing token in session storage... {response.Token}");
         memoryStorageService.SetItem(ApiTokenKey, response.Token);
-        return GetClaimsPrincipalFromToken();
+        await sessionStorageService.SetItemAsStringAsync(ApiTokenKey, response.Token);
+        logger.LogInformation(await sessionStorageService.GetItemAsStringAsync(ApiTokenKey));
+        return await GetClaimsPrincipalFromToken();
     }
 
-    public ClaimsPrincipal? GetClaimsPrincipalFromToken()
+    public async Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken()
     {
         var token = memoryStorageService.GetItem<string>(ApiTokenKey);
-        return token == null ? null : JwtParser.ToClaimsPrincipal(token);
+        logger.LogInformation(token); // TODO: Remove in production
+       
+        if (string.IsNullOrEmpty(token))
+            return null;
+        
+        var principal = JwtParser.ToClaimsPrincipal(token);
+        logger.LogInformation($"Name {principal.Identity?.Name}");
+        logger.LogInformation($"Authenticated {principal.Identity?.IsAuthenticated}");
+        logger.LogInformation($"Name {principal.Claims.FirstOrDefault(x => x.Type == "mp_hash")?.Value}");
+        return principal;
     }
 
     public async Task<bool> RegisterAsync(RegisterViewModel registerViewModel)
@@ -40,7 +55,7 @@ public class AuthService(
             return false;
         
         var masterPasswordHash = await passwordHasher.HashPassword(registerViewModel.MasterPassword);
-        var request = new RegisterRequest()
+        var request = new RegisterRequest
         {
             Email = registerViewModel.Email!,
             Password = registerViewModel.Password!,

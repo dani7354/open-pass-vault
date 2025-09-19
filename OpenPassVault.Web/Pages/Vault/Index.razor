@@ -1,7 +1,9 @@
 @page "/vault"
+@using Microsoft.AspNetCore.Authorization
 @using OpenPassVault.Web.Providers
+@attribute [Authorize]
 
-@inject JwtAuthenticationStateProvider AuthenticationStateStateProvider
+@inject ApiAuthenticationStateProvider AuthenticationStateStateProvider
 @inject NavigationManager NavigationManager
 
 <h3>Index</h3>
@@ -10,9 +12,9 @@
 
     protected override void OnInitialized()
     {
-        if (AuthenticationStateStateProvider.CurrentUser == null)
-        {
-            NavigationManager.NavigateTo(Urls.Login);
-        }
+        //if (AuthenticationStateStateProvider.CurrentUser == null)
+        //{
+        //    NavigationManager.NavigateTo(Urls.Login);
+        //}
     }
 }

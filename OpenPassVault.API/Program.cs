@@ -19,7 +19,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(p => 
-        p.WithOrigins("http://localhost:5000")
+        p.WithOrigins("http://localhost:5000", "https://localhost:7080")
             .AllowAnyMethod()
             .AllowAnyHeader());
 }); 

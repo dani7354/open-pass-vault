@@ -1,6 +1,7 @@
 using System.Text.Json;
 using OpenPassVault.Web.Services.Interfaces;
 using System.Net.Http.Headers;
+using Blazored.SessionStorage;
 
 namespace OpenPassVault.Web.Services;
 
@@ -10,17 +11,17 @@ public class HttpApiService : IHttpApiService
     private const string AuthScheme = "Bearer";
     
     private readonly HttpClient _client = new();
-    private readonly IMemoryStorageService _memoryStorageService;
+    private readonly ISessionStorageService _sessionStorageService;
     
-    public HttpApiService(IMemoryStorageService memoryStorageService, string baseUrl)
+    public HttpApiService(ISessionStorageService sessionStorageService, string baseUrl)
     {
         _client.BaseAddress = new Uri(baseUrl);
-        _memoryStorageService = memoryStorageService;
+        _sessionStorageService = sessionStorageService;
     }
     
     public async Task<T?> GetAsync<T>(string url)
     {
-        AddAuthorizationHeaderIfExists();
+        await AddAuthorizationHeaderIfExists();
         var response = await _client.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
@@ -31,7 +32,7 @@ public class HttpApiService : IHttpApiService
 
     public async Task<T?> PostAsync<T>(string url, object data)
     {
-        AddAuthorizationHeaderIfExists();
+        await AddAuthorizationHeaderIfExists();
         var response = await _client.PostAsync(url, CreateContent(data));
         response.EnsureSuccessStatusCode();
 
@@ -47,9 +48,9 @@ public class HttpApiService : IHttpApiService
         return content;
     }
 
-    private void AddAuthorizationHeaderIfExists()
+    private async Task AddAuthorizationHeaderIfExists()
     {
-        var token = _memoryStorageService.GetItem<string>("OpenPassVault.API");
+        var token = await _sessionStorageService.GetItemAsStringAsync("OpenPassVault.API");
         if (!string.IsNullOrEmpty(token) && 
             (_client.DefaultRequestHeaders.Authorization == null || 
              _client.DefaultRequestHeaders.Authorization.Parameter != token))

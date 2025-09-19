@@ -2,7 +2,7 @@
 @using OpenPassVault.Web.Providers
 
 @inject NavigationManager NavigationManager
-@inject JwtAuthenticationStateProvider AuthenticationStateProvider
+@inject ApiAuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Log ind</PageTitle>
 
@@ -57,6 +57,7 @@
         if (AuthenticationStateProvider.CurrentUser != null)
         {
             NavigationManager.NavigateTo(Urls.VaultIndex);
+            StateHasChanged();
         }
         else
         {

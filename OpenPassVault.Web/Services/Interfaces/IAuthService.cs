@@ -6,7 +6,7 @@ namespace OpenPassVault.Web.Services.Interfaces;
 
 public interface IAuthService
 {
-    ClaimsPrincipal? GetClaimsPrincipalFromToken();
+    Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken();
     Task<bool> RegisterAsync(RegisterViewModel registerViewModel);
     Task<ClaimsPrincipal?> LoginAsync(LoginRequest loginDto);
     void LogoutAsync();

@@ -31,9 +31,10 @@ public class TokenService : ITokenService
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.NameId, userId),
-            new(JwtRegisteredClaimNames.UniqueName, userName),
+            new (JwtRegisteredClaimNames.NameId, userId),
+            new (JwtRegisteredClaimNames.Name, userName),
             new (JwtRegisteredClaimNames.Email, email),
+            new (JwtRegisteredClaimNames.UniqueName, userName),
             new (JwtClaimType.TokenMasterPasswordHashClaimType, masterPasswordHash)
         };
 
@@ -51,10 +52,8 @@ public class TokenService : ITokenService
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
-
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(token);
     }
-    
 }

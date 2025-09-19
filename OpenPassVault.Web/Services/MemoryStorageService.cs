@@ -4,7 +4,7 @@ namespace OpenPassVault.Web.Services;
 
 public class MemoryStorageService : IMemoryStorageService
 {
-    private static Dictionary<string, object> _memoryStorage = new();
+    private readonly Dictionary<string, object> _memoryStorage = new();
     
     public T? GetItem<T>(string key)
     {

@@ -1,21 +1,24 @@
 ﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
+@inject OpenPassVault.Web.Providers.ApiAuthenticationStateProvider AuthenticationStateProvider
 
 <AuthorizeView>
     <Authorized>
-        Hello, @context.User.Identity?.Name!
+        Hello, @AuthenticationStateProvider.CurrentUser?.Name
         <button class="nav-link btn btn-link" @onclick="BeginLogOut">Log out</button>
     </Authorized>
     <NotAuthorized>
-        <a href="/login">Log in</a>
+        <a href="@Urls.Login">Log in</a>
     </NotAuthorized>
 </AuthorizeView>
 
 @code{
 
-    public void BeginLogOut()
+    public async Task BeginLogOut()
     {
-        Navigation.NavigateToLogout("/logout");
+        await AuthenticationStateProvider.Logout();
+        Navigation.NavigateToLogout(Urls.Login);
+        StateHasChanged();
     }
 
 }
