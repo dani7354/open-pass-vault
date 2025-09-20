@@ -11,8 +11,6 @@ public static class JwtParser
     public static ClaimsPrincipal ToClaimsPrincipal(string jwt)
     {
         var token = new JwtSecurityTokenHandler().ReadJwtToken(jwt);
-        Debug.WriteLine(token);
-        Console.WriteLine(token);
         return new ClaimsPrincipal(new ClaimsIdentity(token.Claims, AuthenticationType));
     }
 }

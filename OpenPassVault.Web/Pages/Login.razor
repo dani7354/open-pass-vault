@@ -1,5 +1,6 @@
 @page "/login"
 @using OpenPassVault.Web.Providers
+@using OpenPassVault.Web.Services.Exceptions
 
 @inject NavigationManager NavigationManager
 @inject ApiAuthenticationStateProvider AuthenticationStateProvider
@@ -27,6 +28,11 @@
                 <InputText @bind-Value="model.Password" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.Password)"/>
             </div>
+            <div class="form-group mt-2">
+                <label>Master-password</label>
+                <InputText @bind-Value="model.MasterPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.MasterPassword)"/>
+            </div>
             <div class="mt-4">
                 <button disabled="@loading" type="submit" class="btn btn-primary">
                     @if (loading)
@@ -42,7 +48,7 @@
 </div>
 
 @code {
-    private LoginRequest model = new();
+    private LoginViewModel model = new();
     private string? errorMessage;
     private bool loading;
     
@@ -60,6 +66,14 @@
         {
             loading = true;
             await AuthenticationStateProvider.AuthenticateUser(model);
+        }
+        catch (WrongMasterPasswordException)
+        {
+            SetValidationMessageWhenErrorOccurs("Forkert master-password. Prøv igen.");
+        }
+        catch (AuthenticationException)
+        {
+            SetValidationMessageWhenErrorOccurs("Forkert email eller password. Prøv igen.");
         }
         catch (Exception)
         {

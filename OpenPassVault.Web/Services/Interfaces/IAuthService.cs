@@ -8,6 +8,6 @@ public interface IAuthService
 {
     ClaimsPrincipal? GetClaimsPrincipalFromToken();
     Task RegisterAsync(RegisterViewModel registerViewModel);
-    Task<ClaimsPrincipal?> LoginAsync(LoginRequest loginDto);
+    Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginDto);
     void LogoutAsync();
 }

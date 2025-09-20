@@ -26,7 +26,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
         return Task.FromResult(new AuthenticationState(principal));
     }
 
-    public async Task AuthenticateUser(LoginRequest loginRequest)
+    public async Task AuthenticateUser(LoginViewModel loginRequest)
     {
         var principal = await _authService.LoginAsync(loginRequest) ?? _defaultPrincipal;
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));

@@ -4,6 +4,7 @@ using OpenPassVault.Shared.Crypto.Interfaces;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Web.Helpers;
 using OpenPassVault.Web.Models;
+using OpenPassVault.Web.Services.Exceptions;
 using OpenPassVault.Web.Services.Interfaces;
 
 namespace OpenPassVault.Web.Services;
@@ -11,22 +12,38 @@ namespace OpenPassVault.Web.Services;
 public class AuthService(
     IHttpApiService httpApiService, 
     IPasswordHasher passwordHasher,
-    IAccessTokenService accessTokenService,
-    ILogger<AuthService> logger) : IAuthService
+    IAccessTokenService accessTokenService) : IAuthService
 {
     private const string AuthBaseUrl = "auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
     private const string RegisterUrl = $"{AuthBaseUrl}/register";
 
     
-    public async Task<ClaimsPrincipal?> LoginAsync(LoginRequest loginRequest)
+    public async Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginViewModel)
     {
+        var loginRequest = new LoginRequest
+        {
+            Email = loginViewModel.Email,
+            Password = loginViewModel.Password
+        };
+        
         var response = await httpApiService.PostAsync<TokenResponse>(LoginUrl, loginRequest);
         if (response == null)
-            return null;
+            throw new AuthenticationException();
         
         accessTokenService.SaveToken(response.Token);
-        return GetClaimsPrincipalFromToken();
+        var principal = GetClaimsPrincipalFromToken();
+        var masterPasswordHash = principal?.Claims.First(
+            c => c.Type == JwtClaimType.TokenMasterPasswordHashClaimType).Value;
+
+        if (string.IsNullOrEmpty(masterPasswordHash))
+            throw new WrongMasterPasswordException();
+        
+        var isValid = await passwordHasher.VerifyPassword(
+            hashedPassword: masterPasswordHash, 
+            loginViewModel.MasterPassword);
+        
+        return isValid ? principal : throw new WrongMasterPasswordException();
     }
 
     public ClaimsPrincipal? GetClaimsPrincipalFromToken()
