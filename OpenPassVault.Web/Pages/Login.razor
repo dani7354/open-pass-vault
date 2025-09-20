@@ -9,21 +9,27 @@
 <div class="card">
     <h4 class="card-header">Log ind</h4>
     <div class="card-body">
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+            </div>
+        }
         <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
-            <DataAnnotationsValidator />
+            <DataAnnotationsValidator/>
             <div class="form-group">
                 <label>Email</label>
-                <InputText @bind-Value="model.Email" class="form-control" />
-                <ValidationMessage For="@(() => model.Email)" />
+                <InputText @bind-Value="model.Email" class="form-control"/>
+                <ValidationMessage For="@(() => model.Email)"/>
             </div>
             <div class="form-group mt-2">
                 <label>Password</label>
-                <InputText @bind-Value="model.Password" type="password" class="form-control" />
-                <ValidationMessage For="@(() => model.Password)" />
+                <InputText @bind-Value="model.Password" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.Password)"/>
             </div>
             <div class="mt-4">
                 <button disabled="@loading" type="submit" class="btn btn-primary">
-                    @if (loading) 
+                    @if (loading)
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
                     }
@@ -37,6 +43,7 @@
 
 @code {
     private LoginRequest model = new();
+    private string? errorMessage;
     private bool loading;
     
     protected override void OnInitialized()
@@ -49,23 +56,32 @@
 
     private async void OnValidSubmit(EditContext editContext)
     {
-        loading = true;
-        await AuthenticationStateProvider.AuthenticateUser(model);
-        loading = false;
-        StateHasChanged();
+        try
+        {
+            loading = true;
+            await AuthenticationStateProvider.AuthenticateUser(model);
+        }
+        catch (Exception e)
+        {
+            SetValidationMessageWhenErrorOccurs("En fejl opstod under login. Prøv igen.");
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
         
         if (AuthenticationStateProvider.CurrentUser != null)
         {
             NavigationManager.NavigateTo(Urls.VaultIndex);
             StateHasChanged();
         }
-        else
-        {
-            var messageStore = new ValidationMessageStore(editContext);
-            messageStore.Add(() => model.Email, "");
-            messageStore.Add(() => model.Password, "Log ind mislykkedes!");
-            editContext.NotifyValidationStateChanged();
-        }
+    }
+
+    private void SetValidationMessageWhenErrorOccurs(string errorMessageText)
+    {
+        errorMessage = errorMessageText;
+        StateHasChanged();
     }
 }
 

@@ -10,36 +10,42 @@
 <div class="card">
     <h4 class="card-header">Opret</h4>
     <div class="card-body">
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+            </div>
+        }
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-            <DataAnnotationsValidator />
+            <DataAnnotationsValidator/>
             <div class="form-group mt-2">
                 <label>Email</label>
-                <InputText @bind-Value="model.Email" class="form-control" />
-                <ValidationMessage For="@(() => model.Email)" />
+                <InputText @bind-Value="model.Email" class="form-control"/>
+                <ValidationMessage For="@(() => model.Email)"/>
             </div>
             <div class="form-group mt-2">
                 <label>Password</label>
-                <InputText @bind-Value="model.Password" type="password" class="form-control" />
-                <ValidationMessage For="@(() => model.Password)" />
+                <InputText @bind-Value="model.Password" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.Password)"/>
             </div>
             <div class="form-group mt-2">
                 <label>Bekræft password</label>
-                <InputText @bind-Value="model.ConfirmPassword" type="password" class="form-control" />
-                <ValidationMessage For="@(() => model.ConfirmPassword)" />
+                <InputText @bind-Value="model.ConfirmPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ConfirmPassword)"/>
             </div>
             <div class="form-group mt-2">
                 <label>Master-password</label>
-                <InputText @bind-Value="model.MasterPassword" type="password" class="form-control" />
-                <ValidationMessage For="@(() => model.MasterPassword)" />
+                <InputText @bind-Value="model.MasterPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.MasterPassword)"/>
             </div>
             <div class="form-group mt-2">
                 <label>Bekræft master-password</label>
-                <InputText @bind-Value="model.ConfirmMasterPassword" type="password" class="form-control" />
-                <ValidationMessage For="@(() => model.ConfirmMasterPassword)" />
+                <InputText @bind-Value="model.ConfirmMasterPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ConfirmMasterPassword)"/>
             </div>
             <div class="mt-4">
                 <button disabled="@loading" type="submit" class="btn btn-primary">
-                    @if (loading) 
+                    @if (loading)
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
                     }
@@ -55,6 +61,7 @@
 @code {
     private RegisterViewModel model = new();
     private bool loading;
+    private string? errorMessage;
     
     protected override void OnInitialized()
     {
@@ -66,24 +73,25 @@
 
     private async Task OnValidSubmit(EditContext editContext)
     {
-        loading = true;
-        var success = await AuthService.RegisterAsync(model);
-        loading = false;
-        StateHasChanged();
-    
-        if (success)
+        try
         {
+            loading = true;
+            await AuthService.RegisterAsync(model);
             NavigationManager.NavigateTo(Urls.Login);
         }
-        else
+        catch (Exception)
         {
-            var messageStore = new ValidationMessageStore(editContext);
-            messageStore.Add(() => model.Email, "");
-            messageStore.Add(() => model.Password, "");
-            messageStore.Add(() => model.ConfirmPassword, "");
-            messageStore.Add(() => model.MasterPassword, "");
-            messageStore.Add(() => model.ConfirmMasterPassword, "Oprettelse mislykkedes!");
-            editContext.NotifyValidationStateChanged();
+            SetValidationMessageWhenErrorOccurs("Oprettelse mislykkedes. Prøv igen.");
         }
+        finally
+        {
+            loading = false;
+        }
+    }
+    
+    private void SetValidationMessageWhenErrorOccurs(string errorMessageText)
+    {
+        errorMessage = errorMessageText;
+        StateHasChanged();
     }
 }

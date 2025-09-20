@@ -49,11 +49,8 @@ public class AuthService(
         return principal;
     }
 
-    public async Task<bool> RegisterAsync(RegisterViewModel registerViewModel)
+    public async Task RegisterAsync(RegisterViewModel registerViewModel)
     {
-        if (string.IsNullOrEmpty(registerViewModel.MasterPassword))
-            return false;
-        
         var masterPasswordHash = await passwordHasher.HashPassword(registerViewModel.MasterPassword);
         var request = new RegisterRequest
         {
@@ -62,10 +59,8 @@ public class AuthService(
             ConfirmPassword = registerViewModel.ConfirmPassword!,
             MasterPasswordHash = masterPasswordHash
         };
-        Console.WriteLine("Sending registration request for " + request.Email);
         
         await httpApiService.PostAsync<string>(RegisterUrl, request);
-        return true;
     }   
     
     public void LogoutAsync()
