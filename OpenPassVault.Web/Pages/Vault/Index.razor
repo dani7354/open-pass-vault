@@ -11,16 +11,42 @@
 
 @if (_secrets is { Count: > 0 })
 {
-    
-    
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th aria-label="Navn">Navn</th>
+            <th aria-label="Type">Type</th>
+            <th aria-label="Brugernavn">Brugernavn</th>
+            <th aria-label="Password">Secret</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var s in _secrets)
+        {
+            <tr>
+                <td>@s.Id</td>
+                <td>@s.Name</td>
+                <td>@s.Type</td>
+                <td>@s.Username</td>
+                <td>@s.ContentDecrypted</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="@(() => DecryptAndShowSecret(s.Id))">Vis</button>
+                    <button class="btn btn-sm btn-danger" onclick="@(() => DeleteSecret(s.Id))">Slet</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
 }
 else
 {
     <div class="alert alert-info" role="alert">
         <p>You have no passwords yet.</p>
     </div>
-    <NavLink class="btn btn-primary" href="/vault/create">New</NavLink>
 }
+<NavLink class="btn btn-primary" href="/vault/create">New</NavLink>
 
 @code {
     private IList<SecretListItemResponse>? _secrets;
@@ -28,5 +54,35 @@ else
     protected override async Task OnInitializedAsync()
     {
         _secrets = await SecretService.ListSecrets();
+    }
+
+    private async Task DecryptAndShowSecret(string secretId)
+    {
+        var secret = await SecretService.GetSecret(secretId);
+        if (secret == null)
+            return;
+
+        await Task.Run(async () =>
+        {
+            var decryptedSecret = await SecretService.DecryptSecretContent(secret.Content);
+            var secretToUpdate = _secrets?.FirstOrDefault(x => x.Id == secretId);
+            if (secretToUpdate != null)
+            {
+                secretToUpdate.ContentDecrypted = decryptedSecret;
+                StateHasChanged();
+            }
+        });
+    }
+    
+    private async Task DeleteSecret(string secretId)
+    {
+        await SecretService.DeleteSecret(secretId);
+        await RefreshSecrets();
+    }
+    
+    private async Task RefreshSecrets()
+    {
+        _secrets = await SecretService.ListSecrets();
+        StateHasChanged();
     }
 }

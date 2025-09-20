@@ -6,5 +6,7 @@ public record KeyResponse(byte[] Key, byte[] Salt)
     
     public string KeyHex => Convert.ToHexString(Key);
     private string SaltHex => Convert.ToHexString(Salt);
-    public string FullDigest => $"{KeyHex}${SaltHex}";
+    public string KeyBase64 => Convert.ToBase64String(Key);
+    public string SaltBase64 => Convert.ToBase64String(Salt);
+    public string FullHexDigest => $"{KeyHex}${SaltHex}";
 }

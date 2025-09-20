@@ -21,6 +21,7 @@ public class SecretRepository(ApplicationDatabaseContext dbContext) : ISecretRep
     public async Task<string> Add(Secret entity)
     {
         var newSecret = await dbContext.Secret.AddAsync(entity);
+        await dbContext.SaveChangesAsync();
         return newSecret.Entity.Id;
     }
 
@@ -53,6 +54,7 @@ public class SecretRepository(ApplicationDatabaseContext dbContext) : ISecretRep
             throw new NotFoundException();
         
         dbContext.Secret.Remove(secretEntity);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task<IList<Secret>> ListForUser(string userId)

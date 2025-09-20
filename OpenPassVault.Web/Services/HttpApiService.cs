@@ -65,6 +65,24 @@ public class HttpApiService : IHttpApiService
         }
     }
 
+    public async Task DeleteAsync(string url)
+    {
+        try
+        {
+            AddAuthorizationHeaderIfExists();
+            var response = await _client.DeleteAsync(url);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            throw;
+        }   
+    }
+
     private HttpContent CreateContent(object data)
     {
         var content = new StringContent(JsonSerializer.Serialize(data));

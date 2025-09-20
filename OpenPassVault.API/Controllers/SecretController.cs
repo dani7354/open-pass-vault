@@ -8,6 +8,7 @@ using OpenPassVault.Shared.DTO;
 using Secret = OpenPassVault.API.Data.Entity.Secret;
 
 namespace OpenPassVault.API.Controllers;
+
 [Route("api/secrets")]
 [ApiController]
 [Authorize]

@@ -1,3 +1,4 @@
+using Blazor.SubtleCrypto;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -16,6 +17,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddBlazoredSessionStorageAsSingleton();
 
+builder.Services.AddSubtleCrypto();
 builder.Services.AddSingleton<IMemoryStorageService, MemoryStorageService>();
 builder.Services.AddScoped<IAccessTokenService, AccessTokenService>();
 
@@ -28,7 +30,7 @@ builder.Services.AddScoped<AuthenticationStateProvider>(
     provider => provider.GetRequiredService<ApiAuthenticationStateProvider>());
 builder.Services.AddScoped<ISymmetricKeyGenerator, KeyGenerator>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+builder.Services.AddScoped<IEncryptionService, SubtleCryptoWrapper>();
 builder.Services.AddScoped<ISecretService, SecretService>();
 
 builder.Services.AddAuthorizationCore();

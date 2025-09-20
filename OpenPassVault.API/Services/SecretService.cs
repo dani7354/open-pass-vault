@@ -11,17 +11,18 @@ public class SecretService(ISecretRepository secretRepository) : ISecretService
     {
         var secretEntity = await secretRepository.GetSecret(id, userId);
         if (secretEntity == null) return null;
-        
-        return new SecretDetailsResponse(
-            Id: secretEntity.Id,
-            Name: secretEntity.Name,
-            Username: secretEntity.Username ?? "",
-            Type:  secretEntity.Type,
-            Description: secretEntity.Description ?? "",
-            Created: secretEntity.Created.ToString("o"),
-            Updated: secretEntity.Updated.ToString("o"),
-            Content: secretEntity.Content
-        );
+
+        return new SecretDetailsResponse()
+        {
+            Id = secretEntity.Id,
+            Name = secretEntity.Name,
+            Username = secretEntity.Username ?? "",
+            Type = secretEntity.Type,
+            Description = secretEntity.Description ?? "",
+            Created = secretEntity.Created.ToString(Constants.ResponseDateFormat),
+            Updated = secretEntity.Updated.ToString(Constants.ResponseDateFormat),
+            Content = secretEntity.Content
+        };
     }
 
     public async Task<IList<SecretListItemResponse>> ListAsync(string userId)
@@ -53,6 +54,7 @@ public class SecretService(ISecretRepository secretRepository) : ISecretService
         };
         
         var secretId = await secretRepository.Add(secretEntity);
+        
         return secretId;
     }
 

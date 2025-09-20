@@ -10,7 +10,7 @@ public class PasswordHasher(ISymmetricKeyGenerator keyGenerator) : IPasswordHash
     {
         var keyResponse = await keyGenerator.GenerateKey(password, DigestLength);
         
-        return keyResponse.FullDigest;
+        return keyResponse.FullHexDigest;
     }
 
     public async Task<bool> VerifyPassword(string hashedPassword, string password)
