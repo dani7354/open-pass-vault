@@ -43,4 +43,9 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
+    protected override Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += _ =>  StateHasChanged();
+        return base.OnInitializedAsync();
+    }
 }
