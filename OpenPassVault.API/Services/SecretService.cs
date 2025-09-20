@@ -24,20 +24,17 @@ public class SecretService(ISecretRepository secretRepository) : ISecretService
         );
     }
 
-    public async Task<IList<SecretDetailsResponse>> ListAsync(string userId)
+    public async Task<IList<SecretListItemResponse>> ListAsync(string userId)
     {
         var secretsForUser = await secretRepository.ListForUser(userId);
         return secretsForUser.Select(
-            x => new SecretDetailsResponse(
-                Id: x.Id, 
-                Name: x.Name, 
-                Description: x.Description ?? "", 
-                Username: x.Username ?? "", 
-                Type: x.Type, 
-                Content: x.Content, 
-                Created: x.Created.ToString("o"), 
-                Updated: x.Updated.ToString("o")))
-            .ToList();
+            x => new SecretListItemResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Username = x.Username ?? "",
+                Type = x.Type,
+            }).ToList();
     }
 
     public async Task<string> CreateAsync(SecretCreateRequest secret, string userId)

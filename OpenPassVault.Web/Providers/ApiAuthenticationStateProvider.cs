@@ -20,10 +20,10 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
         AuthenticationStateChanged += OnAuthenticationStateChangedAsync;
     }
     
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var principal = await _authService.GetClaimsPrincipalFromToken() ?? _defaultPrincipal;
-        return new AuthenticationState(principal);
+        var principal = _authService.GetClaimsPrincipalFromToken() ?? _defaultPrincipal;
+        return Task.FromResult(new AuthenticationState(principal));
     }
 
     public async Task AuthenticateUser(LoginRequest loginRequest)
@@ -49,7 +49,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
             CurrentUser = GetUserFromClaimsPrincipal(authenticationState.User);
     }
     
-    private User? GetUserFromClaimsPrincipal(ClaimsPrincipal principal)
+    private User GetUserFromClaimsPrincipal(ClaimsPrincipal principal)
     {
         var name = principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value;
         var email = principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value;

@@ -1,10 +1,97 @@
 @page "/vault/create"
 @using Microsoft.AspNetCore.Authorization
 
+@inject ISecretService SecretService
+@inject NavigationManager NavigationManager
+
 @attribute [Authorize]
 
-<h3>Opret account</h3>
+<PageTitle>Opret password</PageTitle>
+
+<div class="card">
+    <h4 class="card-header">Opret password</h4>
+    <div class="card-body">
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+            </div>
+        }
+        <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator/>
+            <div class="form-group">
+                <label>Navn</label>
+                <InputText @bind-Value="model.Name" class="form-control"/>
+                <ValidationMessage For="@(() => model.Name)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Type</label>
+                <InputSelect @bind-Value="model.Type" class="form-control">
+                    <option value="">-- Vælg type --</option>
+                    <option value="Website">Website</option>
+                    <option value="Application">Applikation</option>
+                    <option value="Database">Database</option>
+                    <option value="Email">Email</option>
+                    <option value="Other">Andet</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => model.Type)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Password</label>
+                <InputText @bind-Value="model.ContentPlain" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ContentPlain)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Brugernavn</label>
+                <InputText @bind-Value="model.Username" class="form-control"/>
+                <ValidationMessage For="@(() => model.Username)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Beskrivelse</label>
+                <InputText @bind-Value="model.Description" class="form-control"/>
+                <ValidationMessage For="@(() => model.Description)"/>
+            </div>
+            <div class="mt-4">
+                <button disabled="@loading" type="submit" class="btn btn-primary">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    Opret
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
 
 @code {
+    private SecretCreateViewModel model = new();
+    private string? errorMessage;
+    private bool loading;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+    
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        loading = false;
+        
+        try
+        {
+            await SecretService.CreateSecret(model);
+            NavigationManager.NavigateTo(Urls.VaultIndex);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
     
 }

@@ -1,6 +1,5 @@
-using System.Diagnostics;
 using System.Security.Claims;
-using Blazored.SessionStorage;
+using OpenPassVault.Shared.Auth;
 using OpenPassVault.Shared.Crypto.Interfaces;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Web.Helpers;
@@ -11,42 +10,30 @@ namespace OpenPassVault.Web.Services;
 
 public class AuthService(
     IHttpApiService httpApiService, 
-    ISessionStorageService sessionStorageService,
-    IMemoryStorageService memoryStorageService,
     IPasswordHasher passwordHasher,
+    IAccessTokenService accessTokenService,
     ILogger<AuthService> logger) : IAuthService
 {
     private const string AuthBaseUrl = "auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
     private const string RegisterUrl = $"{AuthBaseUrl}/register";
 
-    private const string ApiTokenKey = "OpenPassVault.API";
     
     public async Task<ClaimsPrincipal?> LoginAsync(LoginRequest loginRequest)
     {
         var response = await httpApiService.PostAsync<TokenResponse>(LoginUrl, loginRequest);
         if (response == null)
             return null;
-        logger.LogInformation($"Storing token in session storage... {response.Token}");
-        memoryStorageService.SetItem(ApiTokenKey, response.Token);
-        await sessionStorageService.SetItemAsStringAsync(ApiTokenKey, response.Token);
-        logger.LogInformation(await sessionStorageService.GetItemAsStringAsync(ApiTokenKey));
-        return await GetClaimsPrincipalFromToken();
+        
+        accessTokenService.SaveToken(response.Token);
+        return GetClaimsPrincipalFromToken();
     }
 
-    public async Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken()
+    public ClaimsPrincipal? GetClaimsPrincipalFromToken()
     {
-        var token = memoryStorageService.GetItem<string>(ApiTokenKey);
-        logger.LogInformation(token); // TODO: Remove in production
+        var token = accessTokenService.GetToken();
        
-        if (string.IsNullOrEmpty(token))
-            return null;
-        
-        var principal = JwtParser.ToClaimsPrincipal(token);
-        logger.LogInformation($"Name {principal.Identity?.Name}");
-        logger.LogInformation($"Authenticated {principal.Identity?.IsAuthenticated}");
-        logger.LogInformation($"Name {principal.Claims.FirstOrDefault(x => x.Type == "mp_hash")?.Value}");
-        return principal;
+        return string.IsNullOrEmpty(token) ? null : JwtParser.ToClaimsPrincipal(token);
     }
 
     public async Task RegisterAsync(RegisterViewModel registerViewModel)
@@ -65,6 +52,6 @@ public class AuthService(
     
     public void LogoutAsync()
     {
-        memoryStorageService.RemoveItem(ApiTokenKey);
+        accessTokenService.RemoveToken();
     }
 }

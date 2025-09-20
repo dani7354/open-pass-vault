@@ -17,9 +17,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredSessionStorageAsSingleton();
 
 builder.Services.AddSingleton<IMemoryStorageService, MemoryStorageService>();
+builder.Services.AddScoped<IAccessTokenService, AccessTokenService>();
 
 builder.Services.AddScoped<IHttpApiService, HttpApiService>(
-    provider => new HttpApiService(provider.GetService<ISessionStorageService>()!, "http://localhost:5001/api/"));
+    provider => new HttpApiService(provider.GetService<IAccessTokenService>()!, "http://localhost:5001/api/"));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();
@@ -28,6 +29,7 @@ builder.Services.AddScoped<AuthenticationStateProvider>(
 builder.Services.AddScoped<ISymmetricKeyGenerator, KeyGenerator>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+builder.Services.AddScoped<ISecretService, SecretService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();

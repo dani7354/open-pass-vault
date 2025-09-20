@@ -1,7 +1,7 @@
+using System.Net;
 using System.Text.Json;
 using OpenPassVault.Web.Services.Interfaces;
 using System.Net.Http.Headers;
-using Blazored.SessionStorage;
 
 namespace OpenPassVault.Web.Services;
 
@@ -11,34 +11,58 @@ public class HttpApiService : IHttpApiService
     private const string AuthScheme = "Bearer";
     
     private readonly HttpClient _client = new();
-    private readonly ISessionStorageService _sessionStorageService;
+    private readonly IAccessTokenService _accessTokenService;
     
-    public HttpApiService(ISessionStorageService sessionStorageService, string baseUrl)
+    
+    public HttpApiService(IAccessTokenService accessTokenService, string baseUrl)
     {
         _client.BaseAddress = new Uri(baseUrl);
-        _sessionStorageService = sessionStorageService;
+        _accessTokenService = accessTokenService;
     }
     
     public async Task<T?> GetAsync<T>(string url)
     {
-        await AddAuthorizationHeaderIfExists();
-        var response = await _client.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+        try
+        {
+            AddAuthorizationHeaderIfExists();
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
 
-        var responseContent = await response.Content.ReadAsStringAsync();
-        
-        return string.IsNullOrEmpty(responseContent) ? default : JsonSerializer.Deserialize<T>(responseContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return string.IsNullOrEmpty(responseContent) ? default : JsonSerializer.Deserialize<T>(responseContent);
+
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            throw;
+        }
     }
 
     public async Task<T?> PostAsync<T>(string url, object data)
     {
-        await AddAuthorizationHeaderIfExists();
-        var response = await _client.PostAsync(url, CreateContent(data));
-        response.EnsureSuccessStatusCode();
+        try
+        {
+            AddAuthorizationHeaderIfExists();
+            var response = await _client.PostAsync(url, CreateContent(data));
+            response.EnsureSuccessStatusCode();
 
-        var responseContent = await response.Content.ReadAsStringAsync();
+            var responseContent = await response.Content.ReadAsStringAsync();
         
-        return string.IsNullOrEmpty(responseContent) ? default : JsonSerializer.Deserialize<T>(responseContent);
+            return string.IsNullOrEmpty(responseContent) ? default : JsonSerializer.Deserialize<T>(responseContent);
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            throw;
+        }
     }
 
     private HttpContent CreateContent(object data)
@@ -48,9 +72,9 @@ public class HttpApiService : IHttpApiService
         return content;
     }
 
-    private async Task AddAuthorizationHeaderIfExists()
+    private void AddAuthorizationHeaderIfExists()
     {
-        var token = await _sessionStorageService.GetItemAsStringAsync("OpenPassVault.API");
+        var token = _accessTokenService.GetToken(); 
         if (!string.IsNullOrEmpty(token) && 
             (_client.DefaultRequestHeaders.Authorization == null || 
              _client.DefaultRequestHeaders.Authorization.Parameter != token))

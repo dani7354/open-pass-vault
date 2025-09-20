@@ -5,12 +5,28 @@
 
 @inject ApiAuthenticationStateProvider AuthenticationStateStateProvider
 @inject NavigationManager NavigationManager
+@inject ISecretService SecretService
 
-<h3>Index</h3>
+<PageTitle>Passwords</PageTitle>
+
+@if (_secrets is { Count: > 0 })
+{
+    
+    
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        <p>You have no passwords yet.</p>
+    </div>
+    <NavLink class="btn btn-primary" href="/vault/create">New</NavLink>
+}
 
 @code {
+    private IList<SecretListItemResponse>? _secrets;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        _secrets = await SecretService.ListSecrets();
     }
 }
