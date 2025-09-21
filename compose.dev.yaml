@@ -3,6 +3,10 @@ networks:
     driver: bridge
     attachable: true
 services:
+  web:
+    build:
+      context: ./
+      dockerfile: Docker/web.Dockerfile
   api:
     build:
       context: ./
