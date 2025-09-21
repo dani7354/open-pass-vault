@@ -9,5 +9,4 @@ public interface ISecretService
     Task<string> CreateAsync(SecretCreateRequest secret, string userId);
     Task UpdateAsync(SecretUpdateRequest secret, string userId);
     Task DeleteAsync(string id, string userId);
-    
 }

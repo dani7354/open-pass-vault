@@ -4,5 +4,4 @@ public interface IEncryptionService
 {
     Task<string> Encrypt(string plainText, string password);
     Task<string> Decrypt(string cipherText, string password);
-
 }
