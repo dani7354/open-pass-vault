@@ -4,11 +4,11 @@
 
 <AuthorizeView>
     <Authorized>
-        Hello, @AuthenticationStateProvider.CurrentUser?.Name
-        <button class="nav-link btn btn-link" @onclick="BeginLogOut">Log out</button>
+        Velkommen, @AuthenticationStateProvider.CurrentUser?.Name
+        <button class="nav-link btn btn-link" @onclick="BeginLogOut">Log ud</button>
     </Authorized>
     <NotAuthorized>
-        <a href="@Urls.Login">Log in</a>
+        <a href="@Urls.Login">Log ind</a>
     </NotAuthorized>
 </AuthorizeView>
 

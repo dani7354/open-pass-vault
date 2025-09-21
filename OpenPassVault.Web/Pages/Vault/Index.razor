@@ -1,13 +1,12 @@
 @page "/vault"
 @using Microsoft.AspNetCore.Authorization
-@using OpenPassVault.Web.Providers
 @attribute [Authorize]
 
-@inject ApiAuthenticationStateProvider AuthenticationStateStateProvider
-@inject NavigationManager NavigationManager
 @inject ISecretService SecretService
 
 <PageTitle>Passwords</PageTitle>
+
+<ErrorAlert ErrorMessage="@errorMessage" />
 
 @if (_secrets is { Count: > 0 })
 {
@@ -28,12 +27,14 @@
             <tr>
                 <td>@s.Id</td>
                 <td>@s.Name</td>
-                <td>@s.Type</td>
+                <td>@_secretTypeTranslations[s.Type]</td>
                 <td>@s.Username</td>
                 <td>@s.ContentDecrypted</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" onclick="@(() => DecryptAndShowSecret(s.Id))">Vis</button>
-                    <button class="btn btn-sm btn-danger" onclick="@(() => DeleteSecret(s.Id))">Slet</button>
+                    <button class="btn btn-sm btn-primary" disabled="@_busy" 
+                            onclick="@(async () => await DecryptAndShowSecret(s.Id))">Vis</button>
+                    <button class="btn btn-sm btn-danger" disabled="@_busy" 
+                            onclick="@(async () => await DeleteSecret(s.Id))">Slet</button>
                 </td>
             </tr>
         }
@@ -46,24 +47,44 @@ else
         <p>You have no passwords yet.</p>
     </div>
 }
-<NavLink class="btn btn-primary" href="/vault/create">New</NavLink>
+<button class="btn btn-secondary" disabled="@_busy" onclick="@(async () => await RefreshSecrets())">Opdatér</button>
+<NavLink class="btn btn-primary" disabled="@_busy" href="/vault/create">Opret</NavLink>
 
 @code {
+    private bool _busy;
+    private string? errorMessage;
     private IList<SecretListItemResponse>? _secrets;
+    private IDictionary<string, string> _secretTypeTranslations = new Dictionary<string, string>();
 
     protected override async Task OnInitializedAsync()
     {
-        _secrets = await SecretService.ListSecrets();
+        try
+        {
+            SetBusyState(true);
+            _secrets = await SecretService.ListSecrets();
+            _secretTypeTranslations = (await SecretService.GetSecretTypes())
+                .ToDictionary(x => x.Value, x => x.Name);
+        }
+        catch
+        {
+            errorMessage = "Fejl ved indlæsning af passwords. Kom igen en anden gang.";
+            StateHasChanged();
+        }
+        finally
+        {
+            SetBusyState(false);
+        }
     }
 
     private async Task DecryptAndShowSecret(string secretId)
     {
-        var secret = await SecretService.GetSecret(secretId);
-        if (secret == null)
-            return;
-
-        await Task.Run(async () =>
+        try
         {
+            SetBusyState(true);
+            var secret = await SecretService.GetSecret(secretId);
+            if (secret == null)
+                return;
+
             var decryptedSecret = await SecretService.DecryptSecretContent(secret.Content);
             var secretToUpdate = _secrets?.FirstOrDefault(x => x.Id == secretId);
             if (secretToUpdate != null)
@@ -71,18 +92,48 @@ else
                 secretToUpdate.ContentDecrypted = decryptedSecret;
                 StateHasChanged();
             }
-        });
+        }
+        catch
+        {
+            errorMessage = "En fejl opstod under dekryptering af password. Prøv igen.";
+            StateHasChanged();
+        }
+        finally
+        {
+            SetBusyState(false);
+        }
     }
     
     private async Task DeleteSecret(string secretId)
     {
-        await SecretService.DeleteSecret(secretId);
-        await RefreshSecrets();
+        try
+        {
+            SetBusyState(true);
+            await SecretService.DeleteSecret(secretId);
+            await RefreshSecrets();
+
+        }
+        catch (Exception)
+        {
+            errorMessage = "En fejl opstod under sletning af password. Prøv igen.";
+            StateHasChanged();
+        }
+        finally
+        {
+            SetBusyState(false);
+        }
     }
     
     private async Task RefreshSecrets()
     {
+        SetBusyState(true);
         _secrets = await SecretService.ListSecrets();
+        SetBusyState(false);
+    }
+    
+    private void SetBusyState(bool isBusy)
+    {
+        _busy = isBusy;
         StateHasChanged();
     }
 }

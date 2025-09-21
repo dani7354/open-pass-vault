@@ -1,8 +1,11 @@
 @page "/vault/create"
 @using Microsoft.AspNetCore.Authorization
+@using OpenPassVault.Web.Providers
+@using OpenPassVault.Web.Services.Exceptions
 
 @inject ISecretService SecretService
 @inject NavigationManager NavigationManager
+@inject ApiAuthenticationStateProvider AuthenticationStateProvider
 
 @attribute [Authorize]
 
@@ -11,12 +14,7 @@
 <div class="card">
     <h4 class="card-header">Opret password</h4>
     <div class="card-body">
-        @if (errorMessage != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                @errorMessage
-            </div>
-        }
+        <ErrorAlert ErrorMessage="@errorMessage" />
         <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
             <DataAnnotationsValidator/>
             <div class="form-group">
@@ -28,11 +26,10 @@
                 <label>Type</label>
                 <InputSelect @bind-Value="model.Type" class="form-control">
                     <option value="">-- Vælg type --</option>
-                    <option value="Website">Website</option>
-                    <option value="Application">Applikation</option>
-                    <option value="Database">Database</option>
-                    <option value="Email">Email</option>
-                    <option value="Other">Andet</option>
+                    @foreach (var t in _secretTypes ?? [])
+                    {
+                        <option value="@t.Value">@t.Name</option>
+                    }
                 </InputSelect>
                 <ValidationMessage For="@(() => model.Type)"/>
             </div>
@@ -67,22 +64,27 @@
 
 @code {
     private SecretCreateViewModel model = new();
+    private IEnumerable<SecretTypeViewModel>? _secretTypes; 
     private string? errorMessage;
     private bool loading;
     
     protected override async Task OnInitializedAsync()
     {
-        
+        _secretTypes = await SecretService.GetSecretTypes();
     }
     
     private async Task OnValidSubmit(EditContext editContext)
     {
-        loading = false;
-        
         try
         {
+            loading = true;
             await SecretService.CreateSecret(model);
             NavigationManager.NavigateTo(Urls.VaultIndex);
+        }
+        catch (AuthenticationException)
+        {
+            await AuthenticationStateProvider.Logout();
+            NavigationManager.NavigateTo(Urls.Login);
         }
         catch (Exception ex)
         {
@@ -93,5 +95,4 @@
             loading = false;
         }
     }
-    
 }

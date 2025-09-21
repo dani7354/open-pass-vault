@@ -12,7 +12,8 @@ namespace OpenPassVault.Web.Services;
 public class AuthService(
     IHttpApiService httpApiService, 
     IPasswordHasher passwordHasher,
-    IAccessTokenService accessTokenService) : IAuthService
+    IAccessTokenStorage accessTokenStorage,
+    IMasterPasswordStorage masterPasswordStorage) : IAuthService
 {
     private const string AuthBaseUrl = "auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
@@ -30,9 +31,8 @@ public class AuthService(
         var response = await httpApiService.PostAsync<TokenResponse>(LoginUrl, loginRequest);
         if (response == null)
             throw new AuthenticationException();
-        
-        accessTokenService.SaveToken(response.Token);
-        var principal = GetClaimsPrincipalFromToken();
+
+        var principal = JwtParser.ToClaimsPrincipal(response.Token);
         var masterPasswordHash = principal?.Claims.First(
             c => c.Type == JwtClaimType.TokenMasterPasswordHashClaimType).Value;
 
@@ -42,13 +42,18 @@ public class AuthService(
         var isValid = await passwordHasher.VerifyPassword(
             hashedPassword: masterPasswordHash, 
             loginViewModel.MasterPassword);
+
+        if (!isValid) throw new WrongMasterPasswordException();
         
-        return isValid ? principal : throw new WrongMasterPasswordException();
+        await masterPasswordStorage.SetMasterPassword(masterPasswordHash);
+        await accessTokenStorage.SetToken(response.Token);
+            
+        return principal;
     }
 
-    public ClaimsPrincipal? GetClaimsPrincipalFromToken()
+    public async Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken()
     {
-        var token = accessTokenService.GetToken();
+        var token = await accessTokenStorage.GetToken();
        
         return string.IsNullOrEmpty(token) ? null : JwtParser.ToClaimsPrincipal(token);
     }
@@ -67,8 +72,9 @@ public class AuthService(
         await httpApiService.PostAsync<string>(RegisterUrl, request);
     }   
     
-    public void LogoutAsync()
+    public async Task LogoutAsync()
     {
-        accessTokenService.RemoveToken();
+        await accessTokenStorage.ClearToken();
+        await masterPasswordStorage.ClearMasterPassword();
     }
 }

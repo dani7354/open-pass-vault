@@ -20,10 +20,10 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
         AuthenticationStateChanged += OnAuthenticationStateChangedAsync;
     }
     
-    public override Task<AuthenticationState> GetAuthenticationStateAsync()
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var principal = _authService.GetClaimsPrincipalFromToken() ?? _defaultPrincipal;
-        return Task.FromResult(new AuthenticationState(principal));
+        var principal = await _authService.GetClaimsPrincipalFromToken() ?? _defaultPrincipal;
+        return new AuthenticationState(principal);
     }
 
     public async Task AuthenticateUser(LoginViewModel loginRequest)
@@ -32,12 +32,11 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
     }
 
-    public Task Logout()
+    public async Task Logout()
     {
         CurrentUser = null;
-        _authService.LogoutAsync();
+        await _authService.LogoutAsync();
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        return Task.CompletedTask;
     }
     
     private async void OnAuthenticationStateChangedAsync(Task<AuthenticationState> task)

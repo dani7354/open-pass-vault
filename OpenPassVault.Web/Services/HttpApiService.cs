@@ -11,20 +11,20 @@ public class HttpApiService : IHttpApiService
     private const string AuthScheme = "Bearer";
     
     private readonly HttpClient _client = new();
-    private readonly IAccessTokenService _accessTokenService;
+    private readonly IAccessTokenStorage _accessTokenStorage;
     
     
-    public HttpApiService(IAccessTokenService accessTokenService, string baseUrl)
+    public HttpApiService(IAccessTokenStorage accessTokenStorage, string baseUrl)
     {
         _client.BaseAddress = new Uri(baseUrl);
-        _accessTokenService = accessTokenService;
+        _accessTokenStorage = accessTokenStorage;
     }
     
     public async Task<T?> GetAsync<T>(string url)
     {
         try
         {
-            AddAuthorizationHeaderIfExists();
+            await AddAuthorizationHeaderIfExists();
             var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
@@ -47,7 +47,7 @@ public class HttpApiService : IHttpApiService
     {
         try
         {
-            AddAuthorizationHeaderIfExists();
+            await AddAuthorizationHeaderIfExists();
             var response = await _client.PostAsync(url, CreateContent(data));
             response.EnsureSuccessStatusCode();
 
@@ -69,7 +69,7 @@ public class HttpApiService : IHttpApiService
     {
         try
         {
-            AddAuthorizationHeaderIfExists();
+            await AddAuthorizationHeaderIfExists();
             var response = await _client.DeleteAsync(url);
             response.EnsureSuccessStatusCode();
         }
@@ -90,9 +90,9 @@ public class HttpApiService : IHttpApiService
         return content;
     }
 
-    private void AddAuthorizationHeaderIfExists()
+    private async Task AddAuthorizationHeaderIfExists()
     {
-        var token = _accessTokenService.GetToken(); 
+        var token = await _accessTokenStorage.GetToken(); 
         if (!string.IsNullOrEmpty(token) && 
             (_client.DefaultRequestHeaders.Authorization == null || 
              _client.DefaultRequestHeaders.Authorization.Parameter != token))

@@ -11,10 +11,9 @@ public class SecretService(
     IHttpApiService httpApiService,
     ApiAuthenticationStateProvider authenticationStateProvider,
     IEncryptionService encryptionService,
-    ILogger<SecretService> logger) : ISecretService
+    IMasterPasswordStorage masterPasswordStorage) : ISecretService
 {
     private const string BaseUrl = "secrets";
-    private const string masterPassword = "aaaaaaaaaaaaaaaaaaaaaaa"; 
     
     public async Task<IList<SecretListItemResponse>> ListSecrets()
     {
@@ -46,6 +45,10 @@ public class SecretService(
 
     public async Task CreateSecret(SecretCreateViewModel secretCreateViewModel)
     {
+        var masterPassword = await masterPasswordStorage.GetMasterPassword();
+        if (string.IsNullOrEmpty(masterPassword))
+            throw new AuthenticationException();
+        
         var encryptedContent =  await encryptionService.Encrypt(secretCreateViewModel.ContentPlain, masterPassword);
         var secretRequest = new SecretCreateRequest()
         {
@@ -73,10 +76,25 @@ public class SecretService(
 
     public async Task<string> DecryptSecretContent(string content)
     {
-        logger.LogInformation($"Content: {content}");
+        var masterPassword = await masterPasswordStorage.GetMasterPassword();
+        if (string.IsNullOrEmpty(masterPassword))
+            throw new AuthenticationException("Master password not set!");
         var decryptedContent = await encryptionService.Decrypt(content, masterPassword);
         
-        logger.LogInformation($"{decryptedContent}");
         return decryptedContent;
+    }
+
+    public Task<IList<SecretTypeViewModel>> GetSecretTypes()
+    {
+        var secretTypes = new List<SecretTypeViewModel>()
+        {
+            new("Nøgle", nameof(SecretType.Key)),
+            new("Konto", nameof(SecretType.Account)),
+            new("Kort", nameof(SecretType.Card)),
+            new("Note", nameof(SecretType.Note)),
+            new("Andet", nameof(SecretType.Other))
+        };
+        
+        return Task.FromResult<IList<SecretTypeViewModel>>(secretTypes);
     }
 }

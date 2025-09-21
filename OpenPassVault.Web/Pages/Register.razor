@@ -10,12 +10,7 @@
 <div class="card">
     <h4 class="card-header">Opret</h4>
     <div class="card-body">
-        @if (errorMessage != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                @errorMessage
-            </div>
-        }
+        <ErrorAlert ErrorMessage="@errorMessage" />
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
             <DataAnnotationsValidator/>
             <div class="form-group mt-2">

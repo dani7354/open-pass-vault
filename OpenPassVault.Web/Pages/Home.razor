@@ -3,17 +3,20 @@
 
 @inject ApiAuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Hjem</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>OpenPassVault - din nye bedste ven!</h1>
 
 <AuthorizeView>
-    <p>Hello, @AuthenticationStateProvider.CurrentUser?.Name!</p>
+    <p>Velkommen til, @AuthenticationStateProvider.CurrentUser?.Name!</p>
 </AuthorizeView>
 
 
 <div class="alert alert-warning" role="alert">
-    Before authentication will function correctly, you must configure your provider details in <code>Program.cs</code>
+    Bemærk, hvis du glemmer dit master-password, er du fucked!
 </div>
-
-Welcome to your new app.
+<p>
+    Dette er den fedeste password-manager på markedet lige nu! Den garanterer sikker opbevaring af dine passwords 
+    (og andre hemmeligheder) ved brug af topmoderne kryptering på klient-siden. Dette sikrer, at kun du har adgang til 
+    at læse dem. 
+</p>
