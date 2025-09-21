@@ -1,15 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using OpenPassVault.Shared.Validation;
 
 namespace OpenPassVault.Shared.DTO;
 
 public class RegisterRequest
 {
-    [Required, EmailAddress, MaxLength(256)]
-    public string? Email { get; set; }
-    
-    [Required, MinLength(16), MaxLength(256)]
-    public string? Password { get; set; }
-    
-    [Required, Compare(nameof(Password))]
-    public string? ConfirmPassword { get; set; }
+    [Required, EmailAddress, MaxLength(RegisterFieldLengths.EmailMaxLength)]
+    public string Email { get; init; } = null!;
+
+    [Required, MinLength(RegisterFieldLengths.PasswordMinLength), MaxLength(RegisterFieldLengths.PasswordMaxLength)]
+    public string Password { get; init; } = null!;
+
+    [Required, Compare(nameof(Password))] 
+    public string ConfirmPassword { get; set; } = null!;
+
+    [Required, MaxLength(RegisterFieldLengths.MasterPasswordHashMaxLength)] 
+    public string MasterPasswordHash { get; init; } = null!;
 }

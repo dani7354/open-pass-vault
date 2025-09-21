@@ -7,3 +7,5 @@ Docker/*
 .vscode/
 .idea/
 
+*.env
+

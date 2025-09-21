@@ -1,7 +1,13 @@
+using System.Security.Claims;
+using OpenPassVault.Shared.DTO;
+using OpenPassVault.Web.Models;
+
 namespace OpenPassVault.Web.Services.Interfaces;
 
 public interface IAuthService
 {
-    //Task<bool> RegisterAsync(AccountDto accountDto);
-    //Task<string> LoginAsync(LoginDto loginDto);
+    Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken();
+    Task RegisterAsync(RegisterViewModel registerViewModel);
+    Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginDto);
+    Task LogoutAsync();
 }
