@@ -2,6 +2,14 @@ networks:
   localnetwork:
     name: openpassvault_local
 services:
+  web:
+    restart: always
+    ports:
+      - "5000:80"
+    depends_on:
+      - api
+    networks:
+      - localnetwork
   api:
     restart: always
     env_file: Docker/api.env
