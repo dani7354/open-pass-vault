@@ -14,18 +14,18 @@ public class SecretService(
     IMasterPasswordStorage masterPasswordStorage) : ISecretService
 {
     private const string BaseUrl = "secrets";
-    
+
     public async Task<IList<SecretListItemResponse>> ListSecrets()
     {
         try
         {
             var response = await httpApiService.GetAsync<IList<SecretListItemResponse>>(BaseUrl);
-            return response ?? new List<SecretListItemResponse>();
+            return response ?? [];
         }
         catch (RequestUnauthorizedException)
         {
             await authenticationStateProvider.Logout();
-            return new List<SecretListItemResponse>();
+            return [];
         }
     }
 
@@ -48,7 +48,7 @@ public class SecretService(
         var masterPassword = await masterPasswordStorage.GetMasterPassword();
         if (string.IsNullOrEmpty(masterPassword))
             throw new AuthenticationException();
-        
+
         var encryptedContent =  await encryptionService.Encrypt(secretCreateViewModel.ContentPlain, masterPassword);
         var secretRequest = new SecretCreateRequest()
         {
@@ -58,10 +58,10 @@ public class SecretService(
             Type = secretCreateViewModel.Type,
             Content = encryptedContent
         };
-        
+
         await httpApiService.PostAsync<SecretDetailsResponse>(BaseUrl, secretRequest);
     }
-    
+
     public async Task DeleteSecret(string id)
     {
         try
@@ -80,7 +80,7 @@ public class SecretService(
         if (string.IsNullOrEmpty(masterPassword))
             throw new AuthenticationException("Master password not set!");
         var decryptedContent = await encryptionService.Decrypt(content, masterPassword);
-        
+
         return decryptedContent;
     }
 
@@ -94,7 +94,7 @@ public class SecretService(
             new("Note", nameof(SecretType.Note)),
             new("Andet", nameof(SecretType.Other))
         };
-        
+
         return Task.FromResult<IList<SecretTypeViewModel>>(secretTypes);
     }
 }

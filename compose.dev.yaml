@@ -1,0 +1,9 @@
+networks:
+  localnetwork:
+    driver: bridge
+    attachable: true
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Docker/api.Dockerfile

@@ -2,6 +2,15 @@ networks:
   localnetwork:
     name: openpassvault_local
 services:
+  api:
+    restart: always
+    env_file: Docker/api.env
+    ports:
+      - "5001:8080"
+    depends_on:
+      - db
+    networks:
+      - localnetwork
   db:
     image: mysql:8.4.0
     command: --mysql-native-password=ON
