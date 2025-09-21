@@ -3,6 +3,7 @@ networks:
     name: openpassvault_local
 services:
   web:
+    container_name: web
     restart: always
     ports:
       - "5000:80"
@@ -11,6 +12,7 @@ services:
     networks:
       - localnetwork
   api:
+    container_name: api
     restart: always
     env_file: Docker/api.env
     ports:
@@ -20,6 +22,7 @@ services:
     networks:
       - localnetwork
   db:
+    container_name: db
     image: mysql:8.4.0
     command: --mysql-native-password=ON
     restart: always
