@@ -62,11 +62,13 @@ builder.Services.AddAuthentication(o =>
     o.SaveToken = true;
     o.TokenValidationParameters = new TokenValidationParameters
     {
+        ValidAudience = tokenAudience,
+        ValidIssuer = tokenIssuer,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(signingToken),
-        ValidateIssuer = false,
+        ValidateIssuer = true,
         ValidateAudience = false,
-        RequireExpirationTime = false,
+        RequireExpirationTime = true,
         ValidateLifetime = true
     };
 });
