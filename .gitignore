@@ -3,9 +3,9 @@ obj/
 
 Docker/*
 !Docker/*.Dockerfile
+!Docker/nginx/default.conf
 
 .vscode/
 .idea/
 
 *.env
-
