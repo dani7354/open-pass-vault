@@ -27,7 +27,9 @@ jobs:
           file: Docker/api.Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.API_DOCKER_IMAGE_NAME }}:latest ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.API_DOCKER_IMAGE_NAME }}:${{ env.VERSION  }}
+          tags:
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.API_DOCKER_IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.API_DOCKER_IMAGE_NAME }}:${{ env.VERSION  }}
 
       - name: Build and push OpenPassVault Web
         uses: docker/build-push-action@v6
@@ -35,4 +37,6 @@ jobs:
           file: Docker/web.Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.WEB_DOCKER }}:latest ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.WEB_DOCKER }}:${{ env.VERSION  }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.WEB_DOCKER_IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.WEB_DOCKER_IMAGE_NAME }}:${{ env.VERSION  }}
