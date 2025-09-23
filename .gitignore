@@ -2,8 +2,8 @@ bin/
 obj/
 
 Docker/*
-!Docker/*.Dockerfile
 !Docker/nginx/default.conf
+!Docker/*.Dockerfile
 
 .vscode/
 .idea/
