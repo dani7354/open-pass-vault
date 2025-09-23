@@ -27,7 +27,7 @@ jobs:
           file: Docker/api.Dockerfile
           platforms: linux/amd64
           push: true
-          tags:
+          tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.API_DOCKER_IMAGE_NAME }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.API_DOCKER_IMAGE_NAME }}:${{ env.VERSION  }}
 
