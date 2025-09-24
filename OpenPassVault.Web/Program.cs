@@ -20,7 +20,7 @@ builder.Services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
 builder.Services.AddScoped<IMasterPasswordStorage, MasterPasswordMemoryStorage>();
 
 builder.Services.AddScoped<IHttpApiService, HttpApiService>(
-    provider => new HttpApiService(provider.GetService<IAccessTokenStorage>()!, "http://localhost:5001/api/"));
+    provider => new HttpApiService(provider.GetService<IAccessTokenStorage>()!, "https://localhost:8080/api/"));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();

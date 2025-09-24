@@ -15,8 +15,10 @@ services:
     container_name: api
     restart: always
     env_file: Docker/api.env
+    volumes:
+      - ./Docker/certs/:/certs/:ro
     ports:
-      - "5001:8080"
+      - "8080:8080"
     depends_on:
       - db
     networks:
