@@ -15,7 +15,6 @@ namespace OpenPassVault.API.Controllers;
 public sealed class SecretController(ISecretService secretService, UserManager<ApiUser> userManager) : ControllerBase
 {
     [HttpGet]
-    [Authorize]
     public async Task<ActionResult> Secrets()
     {
         var secretsForUser = await userManager.GetUserAsync(HttpContext.User);
@@ -27,7 +26,6 @@ public sealed class SecretController(ISecretService secretService, UserManager<A
     }
 
     [HttpGet("{id}")]
-    [Authorize]
     public async Task<ActionResult<Secret>> Secret(string id)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
@@ -42,7 +40,6 @@ public sealed class SecretController(ISecretService secretService, UserManager<A
     }
 
     [HttpPut("{id}")]
-    [Authorize]
     public async Task<IActionResult> Update(string id, SecretUpdateRequest updateRequest)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
@@ -68,7 +65,6 @@ public sealed class SecretController(ISecretService secretService, UserManager<A
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<ActionResult> Create(SecretCreateRequest createRequest)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);

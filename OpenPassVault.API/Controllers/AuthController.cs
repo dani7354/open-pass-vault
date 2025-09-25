@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenPassVault.API.Data.Entity;
@@ -7,6 +8,7 @@ using OpenPassVault.Shared.DTO;
 namespace OpenPassVault.API.Controllers;
 
 [Route("api/auth")]
+[Authorize]
 [ApiController]
 public sealed class AuthController(
     ILogger<AuthController> logger,
@@ -15,6 +17,7 @@ public sealed class AuthController(
     ITokenService tokenService) : ControllerBase
 {
     
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody]LoginRequest loginRequest)
     {
@@ -23,18 +26,18 @@ public sealed class AuthController(
 
         var userName = loginRequest.Email;
         var password = loginRequest.Password;
-        var result = await signInManager.PasswordSignInAsync(
-            userName: userName,
+
+        var user = await userManager.FindByNameAsync(userName);
+        if (user is null)
+            return Unauthorized();
+        
+        var result = await signInManager.CheckPasswordSignInAsync(
+            user: user,
             password: password,
-            isPersistent: false,
             lockoutOnFailure:  false);
 
         if (result.Succeeded)
         {
-            var user = await userManager.FindByNameAsync(userName);
-            if (user is null)
-                return BadRequest("An error occurred while logging in!");
-
             var userClaims = await userManager.GetClaimsAsync(user);
 
             var token = tokenService.CreateToken(user, userClaims);
@@ -46,6 +49,7 @@ public sealed class AuthController(
         return Unauthorized();
     }
     
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {

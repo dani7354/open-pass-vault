@@ -20,7 +20,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(p =>
-        p.WithOrigins("*")
+        p.WithOrigins(EnvironmentHelper.GetCorsAllowedOrigins())
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -44,14 +44,14 @@ var tokenAudience = EnvironmentHelper.GetJwtAudience();
 builder.Services.AddScoped<ITokenService, TokenService>(
     _ => new TokenService(signingToken, tokenAudience, tokenIssuer));
 
-builder.Services.AddIdentity<ApiUser, IdentityRole>(o =>
+builder.Services.AddIdentityCore<ApiUser>(o =>
 {
     o.Password.RequireDigit = false;
     o.Password.RequireLowercase = false;
     o.Password.RequireUppercase = false;
     o.Password.RequireNonAlphanumeric = false;
     o.Password.RequiredLength = 16;
-}).AddEntityFrameworkStores<ApplicationDatabaseContext>();
+}).AddEntityFrameworkStores<ApplicationDatabaseContext>().AddSignInManager();
 
 builder.Services.AddAuthentication(o =>
 {
