@@ -1,5 +1,3 @@
-using System.Net.Security;
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using OpenPassVault.API.Data.Entity;
