@@ -5,6 +5,7 @@ services:
   web:
     container_name: web
     restart: always
+    env_file: Docker/web.env
     volumes:
       - ./Docker/certs/:/etc/nginx/tls/:ro
     ports:
