@@ -7,10 +7,20 @@ using OpenPassVault.API.Data.DataContext;
 using OpenPassVault.API.Data.Interfaces;
 using OpenPassVault.API.Data.Repository;
 using OpenPassVault.API.Helpers;
+using OpenPassVault.API.Middleware;
 using OpenPassVault.API.Services;
 using OpenPassVault.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 |
+                                    System.Security.Authentication.SslProtocols.Tls13;
+    });
+});
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -18,15 +28,16 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(p => 
-        p.WithOrigins("http://localhost:5000", "https://localhost:7080")
+    options.AddDefaultPolicy(p =>
+        p.WithOrigins(EnvironmentHelper.GetCorsAllowedOrigins())
             .AllowAnyMethod()
             .AllowAnyHeader());
-}); 
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<SecurityHeaders>();
 
 EnvironmentHelper.LoadVariablesFromEnvFile();
 var dbConnectionString = EnvironmentHelper.GetConnectionString();
@@ -42,14 +53,14 @@ var tokenAudience = EnvironmentHelper.GetJwtAudience();
 builder.Services.AddScoped<ITokenService, TokenService>(
     _ => new TokenService(signingToken, tokenAudience, tokenIssuer));
 
-builder.Services.AddIdentity<ApiUser, IdentityRole>(o =>
+builder.Services.AddIdentityCore<ApiUser>(o =>
 {
     o.Password.RequireDigit = false;
     o.Password.RequireLowercase = false;
     o.Password.RequireUppercase = false;
     o.Password.RequireNonAlphanumeric = false;
     o.Password.RequiredLength = 16;
-}).AddEntityFrameworkStores<ApplicationDatabaseContext>();
+}).AddEntityFrameworkStores<ApplicationDatabaseContext>().AddSignInManager();
 
 builder.Services.AddAuthentication(o =>
 {
@@ -80,9 +91,12 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+else if (app.Environment.IsProduction())
+{ 
+    app.UseMiddleware<SecurityHeaders>();
+}
 
 app.UseCors();
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

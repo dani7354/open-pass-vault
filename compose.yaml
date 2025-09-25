@@ -5,8 +5,12 @@ services:
   web:
     container_name: web
     restart: always
+    env_file: Docker/web.env
+    volumes:
+      - ./Docker/certs/:/etc/nginx/tls/:ro
     ports:
-      - "5000:80"
+      - "443:443"
+      - "80:80"
     depends_on:
       - api
     networks:
@@ -15,8 +19,10 @@ services:
     container_name: api
     restart: always
     env_file: Docker/api.env
+    volumes:
+      - ./Docker/certs/:/certs/:ro
     ports:
-      - "5001:8080"
+      - "8080:8080"
     depends_on:
       - db
     networks:

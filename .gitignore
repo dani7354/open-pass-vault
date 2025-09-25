@@ -2,7 +2,7 @@ bin/
 obj/
 
 Docker/*
-!Docker/nginx/default.conf
+!Docker/nginx/nginx.conf
 !Docker/*.Dockerfile
 
 .vscode/

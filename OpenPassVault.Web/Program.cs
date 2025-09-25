@@ -19,8 +19,10 @@ builder.Services.AddSingleton<IMemoryStorageService, MemoryStorageService>();
 builder.Services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
 builder.Services.AddScoped<IMasterPasswordStorage, MasterPasswordMemoryStorage>();
 
+var apiBaseAddress = builder.Configuration["ApiBaseUrl"] ?? 
+                             throw new KeyNotFoundException("ApiBaseAddress is not configured");
 builder.Services.AddScoped<IHttpApiService, HttpApiService>(
-    provider => new HttpApiService(provider.GetService<IAccessTokenStorage>()!, "http://localhost:5001/api/"));
+    provider => new HttpApiService(provider.GetService<IAccessTokenStorage>()!, apiBaseAddress));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();

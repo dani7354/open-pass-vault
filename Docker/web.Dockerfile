@@ -13,6 +13,10 @@ RUN dotnet publish -c Release -o out --no-restore
 
 FROM nginx:1.29.1
 WORKDIR /app
+EXPOSE 443
 EXPOSE 80
-COPY Docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+RUN mkdir /etc/nginx/tls # Mounted from host
+
+COPY Docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build /app/OpenPassVault.Web/out/wwwroot /usr/share/nginx/html
