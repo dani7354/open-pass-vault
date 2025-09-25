@@ -1,3 +1,5 @@
+using System.Net.Security;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using OpenPassVault.API.Data.Entity;
@@ -12,6 +14,15 @@ using OpenPassVault.API.Services;
 using OpenPassVault.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 |
+                                    System.Security.Authentication.SslProtocols.Tls13;
+    });
+});
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
