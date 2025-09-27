@@ -6,7 +6,6 @@ services:
     container_name: web
     image: dsp8ef9/openpassvault_web:latest
     restart: always
-    env_file: Docker/web.env
     volumes:
       - ./Docker/certs/:/etc/nginx/tls/:ro
     ports:

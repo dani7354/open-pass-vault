@@ -1,22 +1,10 @@
 ﻿@page "/"
-@using OpenPassVault.Web.Providers
-
-@inject ApiAuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Hjem</PageTitle>
 
-<h1>OpenPassVault - din nye bedste ven!</h1>
-
-<AuthorizeView>
-    <p>Velkommen til, @AuthenticationStateProvider.CurrentUser?.Name!</p>
-</AuthorizeView>
-
+<h1>OpenPassVault - en password-manager</h1>
 
 <div class="alert alert-warning" role="alert">
-    Bemærk, hvis du glemmer dit master-password, er du fucked!
+    Bemærk, dette er en foreløbig <strong>demo-version</strong>. 
+    Sørg derfor for at have en backup af dine passwords andetsteds, da siden nulstilles og tages ned uden varsel.
 </div>
-<p>
-    Dette er den fedeste password-manager på markedet lige nu! Den garanterer sikker opbevaring af dine passwords 
-    (og andre hemmeligheder) ved brug af topmoderne kryptering på klient-siden. Dette sikrer, at kun du har adgang til 
-    at læse dem. 
-</p>
