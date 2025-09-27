@@ -4,6 +4,7 @@ networks:
 services:
   web:
     container_name: web
+    image: dsp8ef9/openpassvault_web:latest
     restart: always
     env_file: Docker/web.env
     volumes:
@@ -17,6 +18,7 @@ services:
       - localnetwork
   api:
     container_name: api
+    image: dsp8ef9/openpassvault_api:latest
     restart: always
     env_file: Docker/api.env
     volumes:
@@ -37,5 +39,6 @@ services:
       - "3306:3306"
     volumes:
       - ./Docker/db/data:/var/lib/mysql
+      - ./Docker/db/init:/docker-entrypoint-initdb.d:ro
     networks:
       - localnetwork

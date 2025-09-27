@@ -12,7 +12,11 @@ using OpenPassVault.Web.Services.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
+
 builder.RootComponents.Add<HeadOutlet>("head::after");
+builder.Configuration.AddJsonFile("appsettings.json", true, true);
+builder.Configuration.AddJsonFile("appsettings.Development.json", true, true);
+builder.Configuration.AddJsonFile("appsettings.Production.json", true, true);
 
 builder.Services.AddSubtleCrypto();
 builder.Services.AddSingleton<IMemoryStorageService, MemoryStorageService>();

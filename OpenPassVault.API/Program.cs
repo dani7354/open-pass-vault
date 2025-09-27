@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
+    options.AddServerHeader = false;
     options.ConfigureHttpsDefaults(httpsOptions =>
     {
         httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 |
