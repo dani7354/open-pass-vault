@@ -7,7 +7,7 @@ namespace OpenPassVault.Shared.DTO;
 public class SecretCreateRequest
 {
     [MaxLength(SecretFieldLengths.NameMaxLength), Required]
-    [NameValidChars]
+    [SecretNameValidChars]
     public string Name { get; set; } = null!;
 
     [MaxLength(SecretFieldLengths.TypeMaxLength), Required]
@@ -18,10 +18,10 @@ public class SecretCreateRequest
     public string Content { get; set; } = null!;
     
     [MaxLength(SecretFieldLengths.UsernameMaxLength)]
-    [UsernameValidChars]
+    [SecretUsernameValidChars]
     public string? Username { get; set; }
 
     [MaxLength(SecretFieldLengths.DescriptionMaxLength)]
-    [DescriptionValidChars]
+    [SecretDescriptionValidChars]
     public string? Description { get; set; }
 }

@@ -1,6 +1,6 @@
 namespace OpenPassVault.Shared.Validation.Attributes;
 
-public class NameValidCharsAttribute() 
+public class SecretNameValidCharsAttribute() 
     : SpecialCharactersWhitelistAttribute(AllowedSpecialCharacters)
 {
     private static readonly HashSet<char> AllowedSpecialCharacters = [

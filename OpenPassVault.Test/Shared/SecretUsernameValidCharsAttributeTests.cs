@@ -2,7 +2,7 @@ using OpenPassVault.Shared.Validation.Attributes;
 
 namespace OpenPassVault.Test.Shared;
 
-public class UsernameValidCharsAttributeTests
+public class SecretUsernameValidCharsAttributeTests
 {
     public static readonly IList<object[]> ValidInput =
     [
@@ -49,7 +49,7 @@ public class UsernameValidCharsAttributeTests
     [MemberData(nameof(ValidInput))]
     public void IsValid_OnValidInput_PassesValidation(string inputValue)
     {
-        var attribute = new UsernameValidCharsAttribute();
+        var attribute = new SecretUsernameValidCharsAttribute();
 
         var isValid = attribute.IsValid(inputValue);
         
@@ -60,7 +60,7 @@ public class UsernameValidCharsAttributeTests
     [MemberData(nameof(InvalidInput))]
     public void IsValid_OnInvalidInput_FailsValidation(string inputValue)
     {
-        var attribute = new UsernameValidCharsAttribute();
+        var attribute = new SecretUsernameValidCharsAttribute();
 
         var isValid = attribute.IsValid(inputValue);
         
