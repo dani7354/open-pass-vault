@@ -4,6 +4,7 @@ obj/
 Docker/*
 !Docker/nginx/nginx.conf
 !Docker/*.Dockerfile
+!Docker/db/init/*
 
 .vscode/
 .idea/
