@@ -10,7 +10,7 @@ public class SecretUpdateRequest
     public string Id { get; set; } = null!;
     
     [MaxLength(SecretFieldLengths.NameMaxLength), Required] 
-    [OnlyAllowedSpecialCharacters]
+    [NameValidChars]
     public string Name { get; set; } = null!;
 
     [MaxLength(SecretFieldLengths.TypeMaxLength), Required]
@@ -21,10 +21,10 @@ public class SecretUpdateRequest
     public string Content { get; set; } = null!;
     
     [MaxLength(SecretFieldLengths.UsernameMaxLength)]
-    [OnlyAllowedSpecialCharacters]
+    [UsernameValidChars]
     public string? Username { get; set; }
 
     [MaxLength(SecretFieldLengths.DescriptionMaxLength)]
-    [OnlyAllowedSpecialCharacters]
+    [DescriptionValidChars]
     public string? Description { get; set; }
 }
