@@ -1,0 +1,11 @@
+networks:
+  localnetwork:
+    driver: overlay
+    attachable: false
+services:
+  web:
+    image: dsp8ef9/openpassvault_web:0.5.8
+  api:
+    image: dsp8ef9/openpassvault_api:0.5.8
+  db:
+    image: mysql:8.4.0
