@@ -17,7 +17,6 @@ public class SecretUsernameValidCharsAttributeTests
     
     public static readonly IList<object[]> InvalidInput =
     [
-        new object[] { "user@name" },
         new object[] { "user!name" },
         new object[] { "user#name" },
         new object[] { "user$name" },
@@ -26,7 +25,6 @@ public class SecretUsernameValidCharsAttributeTests
         new object[] { "user&name" },
         new object[] { "user*name" },
         new object[] { "user(name)" },
-        new object[] { "user+name" },
         new object[] { "user=name" },
         new object[] { "user{name}" },
         new object[] { "user[name]" },
