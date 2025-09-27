@@ -8,8 +8,8 @@ using OpenPassVault.Shared.DTO;
 namespace OpenPassVault.API.Controllers;
 
 [Route("api/auth")]
-[Authorize]
 [ApiController]
+[Authorize]
 public sealed class AuthController(
     ILogger<AuthController> logger,
     UserManager<ApiUser> userManager,
@@ -31,6 +31,7 @@ public sealed class AuthController(
         if (user is null)
             return Unauthorized();
         
+        logger.LogInformation($"Attempting to log in user {user.Email}...");
         var result = await signInManager.CheckPasswordSignInAsync(
             user: user,
             password: password,
@@ -38,6 +39,7 @@ public sealed class AuthController(
 
         if (result.Succeeded)
         {
+            logger.LogInformation($"User {user.Email} successfully logged in.");
             var userClaims = await userManager.GetClaimsAsync(user);
 
             var token = tokenService.CreateToken(user, userClaims);
@@ -54,12 +56,10 @@ public sealed class AuthController(
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
         if (!ModelState.IsValid)
-        {
             return BadRequest(ModelState);
-        }
 
         var username = registerRequest.Email;
-        var user = new ApiUser()
+        var user = new ApiUser
         {
             UserName = username,
             Email = username,
@@ -67,6 +67,7 @@ public sealed class AuthController(
         };
 
         var result = await userManager.CreateAsync(user, registerRequest.Password);
+        logger.LogInformation($"User {user.Email} successfully registered.");
         if (!result.Succeeded)
             return BadRequest($"Failed to create user {username}!");
         
