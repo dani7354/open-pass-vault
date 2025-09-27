@@ -5,9 +5,7 @@ namespace OpenPassVault.Test.Shared;
 
 public class ValidSecretTypeAttributeTest
 {
-
     public static IList<object[]> ValidSecretTypes = Enum.GetValues<SecretType>().Select(x => new object[] { x }).ToArray();
-
     public static IList<object[]> InValidSecretTypes = new List<object[]>
     {
         new object[] { "" },
@@ -40,7 +38,7 @@ public class ValidSecretTypeAttributeTest
 
         var isValid = attribute.IsValid(secretTypeValue);
         
-        Assert.True(!isValid);
+        Assert.False(isValid);
     }
     
     [Fact]
@@ -50,6 +48,6 @@ public class ValidSecretTypeAttributeTest
 
         var isValid = attribute.IsValid(null);
         
-        Assert.True(!isValid);
+        Assert.False(isValid);
     }
 }
