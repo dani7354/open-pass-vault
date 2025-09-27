@@ -27,7 +27,6 @@ public class KeyGenerator : ISymmetricKeyGenerator
     public async Task<KeyResponse> GenerateKey(string password, byte[] salt, int length = KeyLength)
     {
         var passwordBytes = Encoding.UTF8.GetBytes(password);
-
         var argon = new Argon2id(passwordBytes)
         {
             Salt = salt,

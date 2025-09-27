@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using OpenPassVault.Shared.Validation;
+using OpenPassVault.Shared.Validation.Attributes;
 
 namespace OpenPassVault.Web.Models;
 
 public class LoginViewModel
 {
-    [Required, EmailAddress, MaxLength(LoginFieldLengths.EmailMaxLength)]
+    [Required, EmailAddress, MaxLength(LoginFieldLengths.EmailMaxLength), UserEmailValidChars]
     public string Email { get; set; } = null!;
 
     [Required, MinLength(LoginFieldLengths.PasswordMinLength), MaxLength(LoginFieldLengths.EmailMaxLength)]
