@@ -9,17 +9,21 @@ public class SecretUpdateRequest
     public string Id { get; set; } = null!;
     
     [MaxLength(SecretFieldLengths.NameMaxLength), Required] 
+    [OnlyAllowedSpecialCharacters]
     public string Name { get; set; } = null!;
 
-    [MaxLength(SecretFieldLengths.TypeMaxLength), Required] 
+    [MaxLength(SecretFieldLengths.TypeMaxLength), Required]
+    [ValidSecretType]
     public string Type { get; set; } = null!;
 
     [MaxLength(SecretFieldLengths.ContentMaxLength), Required] 
     public string Content { get; set; } = null!;
     
-    [MaxLength(SecretFieldLengths.UsernameMaxLength)] 
+    [MaxLength(SecretFieldLengths.UsernameMaxLength)]
+    [OnlyAllowedSpecialCharacters]
     public string? Username { get; set; }
 
     [MaxLength(SecretFieldLengths.DescriptionMaxLength)]
+    [OnlyAllowedSpecialCharacters]
     public string? Description { get; set; }
 }

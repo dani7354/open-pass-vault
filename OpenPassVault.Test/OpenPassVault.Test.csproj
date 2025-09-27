@@ -31,7 +31,6 @@
 
     <ItemGroup>
       <Folder Include="API\" />
-      <Folder Include="Shared\" />
       <Folder Include="Web\" />
     </ItemGroup>
 
