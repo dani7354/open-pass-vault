@@ -8,7 +8,7 @@ Generate development certificates by running:
 This certificate is used both on the host machine and inside the Docker container, as the directory is mounted. See `compose.yaml`.
 
 ### Web API .env
-`OpenPassVault/.env` file for the web api. All environment variables are required. Most of them can be copied to the Docker version, which is located in `Docker/api.env`, but make sure MYSQL_SERVER is updated to "db" (default name of database container in `compose.yaml`).
+`OpenPassVault.API/.env` file for the web api. All environment variables are required. Most of them can be copied to the Docker version, which is located in `Docker/api.env`, but make sure MYSQL_SERVER is updated to "db" (default name of database container in `compose.yaml`).
 ```
 MYSQL_SERVER=127.0.0.1
 MYSQL_DATABASE=OpenPassVault
@@ -21,7 +21,18 @@ JWT_AUDIENCE=
 JWT_ISSUER=OpenPassVault
 ASPNETCORE_URLS=https://+:8080
 ASPNETCORE_Kestrel__Certificates__Default__Password=
-ASPNETCORE_Kestrel__Certificates__Default__Path=Docker/cert/certificate.pfx
+ASPNETCORE_Kestrel__Certificates__Default__Path=Docker/certs/certificate.pfx
+```
+
+### MySQL .env
+`Docker/db.env` for MySQL Docker container.
+```
+MYSQL_ROOT_PASSWORD=
+MYSQL_DATABASE=OpenPassVault
+MYSQL_USER=
+MYSQL_PASSWORD=
+TZ=Europe/Paris
+
 ```
 
 ### Nginx Certificates and TLS
