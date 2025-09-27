@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using OpenPassVault.Shared.Validation;
+using OpenPassVault.Shared.Validation.Attributes;
 
 namespace OpenPassVault.Shared.DTO;
 

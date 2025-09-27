@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace OpenPassVault.Shared.Validation;
+namespace OpenPassVault.Shared.Validation.Attributes;
 
 public class OnlyAllowedSpecialCharactersAttribute : ValidationAttribute
 {

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using OpenPassVault.Shared.DTO;
 
-namespace OpenPassVault.Shared.Validation;
+namespace OpenPassVault.Shared.Validation.Attributes;
 
 public class ValidSecretTypeAttribute : ValidationAttribute
 {

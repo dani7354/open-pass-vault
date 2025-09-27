@@ -1,5 +1,5 @@
 using OpenPassVault.Shared.DTO;
-using OpenPassVault.Shared.Validation;
+using OpenPassVault.Shared.Validation.Attributes;
 
 namespace OpenPassVault.Test.Shared;
 
