@@ -10,7 +10,7 @@ public class SecurityHeaders : IMiddleware
     
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        //context.Response.Headers[HstsHeader] = HstsValue;
+        context.Response.Headers[HstsHeader] = HstsValue;
         context.Response.Headers[ContentTypeOptionsHeader] = ContentTypeOptionsValue;
         
         await next.Invoke(context);
