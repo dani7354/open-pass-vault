@@ -1,7 +1,7 @@
 ARG DOTNET_VER=9.0
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VER} AS base
-EXPOSE 8080
+EXPOSE 8443
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VER} AS build
