@@ -13,7 +13,6 @@
     <table class="table">
         <thead>
         <tr>
-            <th>ID</th>
             <th aria-label="Navn">Navn</th>
             <th aria-label="Type">Type</th>
             <th aria-label="Brugernavn">Brugernavn</th>
@@ -25,7 +24,6 @@
         @foreach (var s in _secrets)
         {
             <tr>
-                <td>@s.Id</td>
                 <td>@s.Name</td>
                 <td>@_secretTypeTranslations[s.Type]</td>
                 <td>@s.Username</td>

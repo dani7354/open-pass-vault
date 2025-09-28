@@ -57,6 +57,8 @@
 
     private async void OnValidSubmit(EditContext editContext)
     {
+        var loginFailedMessage = "Forkert email eller password. Prøv igen.";
+        
         try
         {
             loading = true;
@@ -64,11 +66,11 @@
         }
         catch (WrongMasterPasswordException)
         {
-            SetValidationMessageWhenErrorOccurs("Forkert master-password. Prøv igen.");
+            SetValidationMessageWhenErrorOccurs(loginFailedMessage);
         }
         catch (AuthenticationException)
         {
-            SetValidationMessageWhenErrorOccurs("Forkert email eller password. Prøv igen.");
+            SetValidationMessageWhenErrorOccurs(loginFailedMessage);
         }
         catch (Exception)
         {

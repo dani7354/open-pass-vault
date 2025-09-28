@@ -34,14 +34,14 @@
                 <ValidationMessage For="@(() => model.Type)"/>
             </div>
             <div class="form-group mt-2">
-                <label>Password</label>
-                <InputText @bind-Value="model.ContentPlain" type="password" class="form-control"/>
-                <ValidationMessage For="@(() => model.ContentPlain)"/>
-            </div>
-            <div class="form-group mt-2">
                 <label>Brugernavn</label>
                 <InputText @bind-Value="model.Username" class="form-control"/>
                 <ValidationMessage For="@(() => model.Username)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Password</label>
+                <InputText @bind-Value="model.ContentPlain" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ContentPlain)"/>
             </div>
             <div class="form-group mt-2">
                 <label>Beskrivelse</label>
