@@ -7,5 +7,4 @@ public static class ErrorMessages
     public const string MinLength = "Feltet indeholder for få tegn";
     public const string MaxLength = "Feltet indeholder for mange tegn";
     public const string Compare = "Feltet matcher ikke";
-
 }
