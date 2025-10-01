@@ -6,22 +6,25 @@ namespace OpenPassVault.Web.Models;
 
 public class SecretCreateViewModel
 {
-    [MaxLength(SecretFieldLengths.NameMaxLength), Required]
+    [Required(ErrorMessage = ErrorMessages.Required),
+     MaxLength(SecretFieldLengths.NameMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     [SecretNameValidChars]
     public string Name { get; set; } = null!;
 
-    [MaxLength(SecretFieldLengths.TypeMaxLength), Required]
+    [Required(ErrorMessage = ErrorMessages.Required),
+     MaxLength(SecretFieldLengths.TypeMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     [ValidSecretType]
     public string Type { get; set; } = null!;
 
-    [MaxLength(SecretFieldLengths.ContentPlainTextMaxLength), Required]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MaxLength(SecretFieldLengths.ContentPlainTextMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     public string ContentPlain { get; set; } = null!;
     
-    [MaxLength(SecretFieldLengths.UsernameMaxLength)]
+    [MaxLength(SecretFieldLengths.UsernameMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     [SecretUsernameValidChars]
     public string? Username { get; set; }
 
-    [MaxLength(SecretFieldLengths.DescriptionMaxLength)]
+    [MaxLength(SecretFieldLengths.DescriptionMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     [SecretDescriptionValidChars]
     public string? Description { get; set; }
 }

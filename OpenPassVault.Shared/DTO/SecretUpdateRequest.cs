@@ -6,25 +6,29 @@ namespace OpenPassVault.Shared.DTO;
 
 public class SecretUpdateRequest
 {
-    [MaxLength(SecretFieldLengths.IdMaxLength), Required]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MaxLength(SecretFieldLengths.IdMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     public string Id { get; set; } = null!;
     
-    [MaxLength(SecretFieldLengths.NameMaxLength), Required] 
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MaxLength(SecretFieldLengths.NameMaxLength, ErrorMessage = ErrorMessages.MaxLength)] 
     [SecretNameValidChars]
     public string Name { get; set; } = null!;
 
-    [MaxLength(SecretFieldLengths.TypeMaxLength), Required]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MaxLength(SecretFieldLengths.TypeMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     [ValidSecretType]
     public string Type { get; set; } = null!;
 
-    [MaxLength(SecretFieldLengths.ContentMaxLength), Required] 
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MaxLength(SecretFieldLengths.ContentMaxLength, ErrorMessage = ErrorMessages.MaxLength)] 
     public string Content { get; set; } = null!;
     
-    [MaxLength(SecretFieldLengths.UsernameMaxLength)]
+    [MaxLength(SecretFieldLengths.UsernameMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     [SecretUsernameValidChars]
     public string? Username { get; set; }
 
-    [MaxLength(SecretFieldLengths.DescriptionMaxLength)]
+    [MaxLength(SecretFieldLengths.DescriptionMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     [SecretDescriptionValidChars]
     public string? Description { get; set; }
 }

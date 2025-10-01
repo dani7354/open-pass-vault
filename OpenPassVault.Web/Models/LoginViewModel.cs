@@ -6,12 +6,19 @@ namespace OpenPassVault.Web.Models;
 
 public class LoginViewModel
 {
-    [Required, EmailAddress, MaxLength(LoginFieldLengths.EmailMaxLength), UserEmailValidChars]
+    [Required(ErrorMessage = ErrorMessages.Required),
+     EmailAddress(ErrorMessage = ErrorMessages.EmailAddress), 
+     MaxLength(LoginFieldLengths.EmailMaxLength, ErrorMessage = ErrorMessages.MaxLength), 
+     UserEmailValidChars]
     public string Email { get; set; } = null!;
 
-    [Required, MinLength(LoginFieldLengths.PasswordMinLength), MaxLength(LoginFieldLengths.EmailMaxLength)]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MinLength(LoginFieldLengths.PasswordMinLength, ErrorMessage = ErrorMessages.MinLength), 
+     MaxLength(LoginFieldLengths.PasswordMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     public string Password { get; set; } = null!;
 
-    [Required, MinLength(LoginFieldLengths.MasterPasswordMinLength), MaxLength(LoginFieldLengths.MasterPasswordMaxLength)]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MinLength(LoginFieldLengths.MasterPasswordMinLength, ErrorMessage = ErrorMessages.MinLength), 
+     MaxLength(LoginFieldLengths.MasterPasswordMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     public string MasterPassword { get; set; } = null!;
 }
