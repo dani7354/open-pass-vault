@@ -8,8 +8,8 @@ public class LoginViewModel
 {
     [Required(ErrorMessage = ErrorMessages.Required),
      EmailAddress(ErrorMessage = ErrorMessages.EmailAddress), 
-     MaxLength(LoginFieldLengths.EmailMaxLength, ErrorMessage = ErrorMessages.MaxLength), 
-     UserEmailValidChars]
+     MaxLength(LoginFieldLengths.EmailMaxLength, ErrorMessage = ErrorMessages.MaxLength)] 
+     [UserEmailValidChars]
     public string Email { get; set; } = null!;
 
     [Required(ErrorMessage = ErrorMessages.Required), 

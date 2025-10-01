@@ -9,8 +9,8 @@ public class RegisterRequest
 {
     [Required(ErrorMessage = ErrorMessages.Required), 
      EmailAddress(ErrorMessage = ErrorMessages.EmailAddress), 
-     MaxLength(RegisterFieldLengths.EmailMaxLength, ErrorMessage = ErrorMessages.MaxLength),
-     UserEmailValidChars]
+     MaxLength(RegisterFieldLengths.EmailMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
+    [UserEmailValidChars]
     public string Email { get; init; } = null!;
 
     [Required(ErrorMessage = ErrorMessages.Required), 

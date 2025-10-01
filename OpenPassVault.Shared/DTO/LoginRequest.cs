@@ -8,8 +8,8 @@ public class LoginRequest
 {
     [Required(ErrorMessage = ErrorMessages.Required), 
      EmailAddress(ErrorMessage = ErrorMessages.EmailAddress), 
-     MaxLength(LoginFieldLengths.EmailMaxLength), 
-     UserEmailValidChars]
+     MaxLength(LoginFieldLengths.EmailMaxLength)]
+    [UserEmailValidChars]
     public string Email { get; set; } = null!;
 
     [Required(ErrorMessage = ErrorMessages.Required), 
