@@ -7,18 +7,27 @@ namespace OpenPassVault.Web.Models;
 
 public class RegisterViewModel
 {
-    [Required, EmailAddress, MaxLength(RegisterFieldLengths.EmailMaxLength), UserEmailValidChars]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     EmailAddress(ErrorMessage = ErrorMessages.EmailAddress), 
+     MaxLength(RegisterFieldLengths.EmailMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
+    [UserEmailValidChars]
     public string Email { get; set; } = null!;
 
-    [Required, MinLength(RegisterFieldLengths.PasswordMinLength), MaxLength(RegisterFieldLengths.PasswordMaxLength)]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MinLength(RegisterFieldLengths.PasswordMinLength, ErrorMessage = ErrorMessages.MinLength),
+     MaxLength(RegisterFieldLengths.PasswordMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     public string Password { get; set; } = null!;
 
-    [Required, Compare(nameof(Password))]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     Compare(nameof(Password), ErrorMessage = ErrorMessages.Compare)]
     public string ConfirmPassword { get; set; } = null!;
 
-    [Required, MinLength(RegisterFieldLengths.MasterPasswordMinLength), MaxLength(RegisterFieldLengths.MasterPasswordMaxLength)]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     MinLength(RegisterFieldLengths.MasterPasswordMinLength, ErrorMessage = ErrorMessages.MinLength), 
+     MaxLength(RegisterFieldLengths.MasterPasswordMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     public string MasterPassword { get; set; } = null!;
 
-    [Required, Compare(nameof(MasterPassword))]
+    [Required(ErrorMessage = ErrorMessages.Required), 
+     Compare(nameof(MasterPassword), ErrorMessage = ErrorMessages.Compare)]
     public string ConfirmMasterPassword { get; set; } = null!;
 }
