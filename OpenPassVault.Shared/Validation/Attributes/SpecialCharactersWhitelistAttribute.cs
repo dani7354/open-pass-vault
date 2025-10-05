@@ -9,7 +9,8 @@ public class SpecialCharactersWhitelistAttribute(HashSet<char> allowedSpecialCha
         var stringValue = value as string;
         if (!string.IsNullOrEmpty(stringValue))
         {
-            var invalidChars = string.Join(", ", stringValue.Where(c => !IsCharValid(c)));
+            var invalidChars = string.Join(
+                ", ", stringValue.Where(c => !IsCharValid(c)).Distinct());
             if (!string.IsNullOrEmpty(invalidChars))
             {
                 ErrorMessage = $"Feltet kan ikke indeholde: {invalidChars}";
@@ -20,5 +21,6 @@ public class SpecialCharactersWhitelistAttribute(HashSet<char> allowedSpecialCha
         return true; // this validator accepts null
     }
 
-    protected virtual bool IsCharValid(char c) => char.IsLetterOrDigit(c) || allowedSpecialCharacters.Contains(c);
+    protected virtual bool IsCharValid(char c) 
+        => char.IsLetterOrDigit(c) || allowedSpecialCharacters.Contains(c);
 }
