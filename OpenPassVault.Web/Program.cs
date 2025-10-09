@@ -12,7 +12,7 @@ using OpenPassVault.Web.Services;
 using OpenPassVault.Web.Services.Interfaces;
 
 
-const string HttpClientName = "ApiClient";
+const string httpClientName = "ApiClient";
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -29,12 +29,9 @@ builder.Services.AddScoped<IMasterPasswordStorage, MasterPasswordMemoryStorage>(
 
 var apiBaseAddress = builder.Configuration["ApiBaseUrl"] ?? 
                              throw new KeyNotFoundException("ApiBaseAddress is not configured");
-
-
 builder.Services.AddTransient<CookieHttpHandler>();
-builder.Services.AddScoped(provider => provider.GetService<IHttpClientFactory>()!.CreateClient(HttpClientName));
-builder.Services.AddHttpClient(
-        HttpClientName, client => client.BaseAddress = new Uri(apiBaseAddress))
+builder.Services.AddScoped(provider => provider.GetService<IHttpClientFactory>()!.CreateClient(httpClientName))
+    .AddHttpClient(httpClientName, client => client.BaseAddress = new Uri(apiBaseAddress))
     .AddHttpMessageHandler<CookieHttpHandler>();
 
 builder.Services.AddScoped<IHttpApiService, HttpApiService>(provider => new HttpApiService(
