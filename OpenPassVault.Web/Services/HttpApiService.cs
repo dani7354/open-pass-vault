@@ -11,7 +11,6 @@ public class HttpApiService(IAccessTokenStorage accessTokenStorage, HttpClient h
     private const string ContentType = "application/json";
     private const string AuthScheme = "Bearer";
 
-
     public async Task<T?> GetAsync<T>(string url)
     {
         try
