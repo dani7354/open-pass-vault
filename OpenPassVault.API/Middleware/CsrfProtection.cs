@@ -39,6 +39,11 @@ public class CsrfProtection(ICsrfTokenService csrfTokenService) : IMiddleware
                     return;
                 }
             }
+            else
+            {
+                await Return403Forbidden(context);
+                return;
+            }
         }
         
         await next.Invoke(context);
