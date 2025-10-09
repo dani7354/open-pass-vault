@@ -32,13 +32,15 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(p =>
         p.WithOrigins(EnvironmentHelper.GetCorsAllowedOrigins())    
             .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<SecurityHeaders>();
+builder.Services.AddScoped<CsrfProtection>();
 
 EnvironmentHelper.LoadVariablesFromEnvFile();
 var dbConnectionString = EnvironmentHelper.GetConnectionString();
@@ -48,11 +50,14 @@ builder.Services.AddDbContext<ApplicationDatabaseContext>(
 builder.Services.AddScoped<ISecretRepository, SecretRepository>();
 builder.Services.AddScoped<ISecretService, SecretService>();
 
+var csrfTokenKey = EnvironmentHelper.GetCsrfTokenKey();
+builder.Services.AddScoped<ICsrfTokenService, CsrfTokenService>( x => new CsrfTokenService(csrfTokenKey));
+
 var signingToken = EnvironmentHelper.GetJwtSigningKey();
 var tokenIssuer = EnvironmentHelper.GetJwtIssuer();
 var tokenAudience = EnvironmentHelper.GetJwtAudience();
-builder.Services.AddScoped<ITokenService, TokenService>(
-    _ => new TokenService(signingToken, tokenAudience, tokenIssuer));
+builder.Services.AddScoped<IAccessTokenService, AccessTokenService>(
+    _ => new AccessTokenService(signingToken, tokenAudience, tokenIssuer));
 
 builder.Services.AddIdentityCore<ApiUser>(o =>
 {
@@ -94,9 +99,10 @@ if (app.Environment.IsDevelopment())
 }
 else if (app.Environment.IsProduction())
 { 
-    app.UseMiddleware<SecurityHeaders>();
+    app.UseSecurityHeaders();
 }
 
+app.UseCsrfProtection();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

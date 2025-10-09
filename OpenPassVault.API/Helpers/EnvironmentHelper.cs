@@ -15,6 +15,8 @@ public static class EnvironmentHelper
     private const string JwtIssuer = "JWT_ISSUER";
     private const string JwtAudience = "JWT_AUDIENCE";
     
+    private const string CsrfTokenKey = "CSRF_TOKEN_KEY";
+    
     private const string CorsAllowedOrigins = "CORS_ALLOWED_ORIGINS";
     
     public static void LoadVariablesFromEnvFile()
@@ -53,6 +55,12 @@ public static class EnvironmentHelper
     
     
     public static string GetJwtIssuer() => GetEnvVariableOrFail(JwtIssuer);
+
+    public static byte[] GetCsrfTokenKey()
+    {
+        var key = GetEnvVariableOrFail(CsrfTokenKey);
+        return Convert.FromHexString(key);
+    }
     
     public static string[] GetCorsAllowedOrigins()
     {
