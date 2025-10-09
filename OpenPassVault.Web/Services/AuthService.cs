@@ -2,7 +2,7 @@ using System.Security.Claims;
 using OpenPassVault.Shared.Auth;
 using OpenPassVault.Shared.Crypto.Interfaces;
 using OpenPassVault.Shared.DTO;
-using OpenPassVault.Web.Helpers;
+using OpenPassVault.Shared.Helpers;
 using OpenPassVault.Web.Models;
 using OpenPassVault.Web.Services.Exceptions;
 using OpenPassVault.Web.Services.Interfaces;

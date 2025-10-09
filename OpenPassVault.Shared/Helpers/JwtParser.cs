@@ -1,8 +1,7 @@
-using System.Diagnostics;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace OpenPassVault.Web.Helpers;
+namespace OpenPassVault.Shared.Helpers;
 
 public static class JwtParser
 {

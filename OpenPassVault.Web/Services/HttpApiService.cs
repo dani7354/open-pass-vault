@@ -5,27 +5,18 @@ using System.Net.Http.Headers;
 
 namespace OpenPassVault.Web.Services;
 
-public class HttpApiService : IHttpApiService
+public class HttpApiService(IAccessTokenStorage accessTokenStorage, HttpClient httpClient)
+    : IHttpApiService
 {
     private const string ContentType = "application/json";
     private const string AuthScheme = "Bearer";
-    
-    private readonly HttpClient _client = new();
-    private readonly IAccessTokenStorage _accessTokenStorage;
-    
-    
-    public HttpApiService(IAccessTokenStorage accessTokenStorage, string baseUrl)
-    {
-        _client.BaseAddress = new Uri(baseUrl);
-        _accessTokenStorage = accessTokenStorage;
-    }
-    
+
     public async Task<T?> GetAsync<T>(string url)
     {
         try
         {
             await AddAuthorizationHeaderIfExists();
-            var response = await _client.GetAsync(url);
+            var response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -48,7 +39,7 @@ public class HttpApiService : IHttpApiService
         try
         {
             await AddAuthorizationHeaderIfExists();
-            var response = await _client.PostAsync(url, CreateContent(data));
+            var response = await httpClient.PostAsync(url, CreateContent(data));
             response.EnsureSuccessStatusCode();
 
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -70,7 +61,7 @@ public class HttpApiService : IHttpApiService
         try
         {
             await AddAuthorizationHeaderIfExists();
-            var response = await _client.DeleteAsync(url);
+            var response = await httpClient.DeleteAsync(url);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException e)
@@ -92,12 +83,12 @@ public class HttpApiService : IHttpApiService
 
     private async Task AddAuthorizationHeaderIfExists()
     {
-        var token = await _accessTokenStorage.GetToken(); 
+        var token = await accessTokenStorage.GetToken(); 
         if (!string.IsNullOrEmpty(token) && 
-            (_client.DefaultRequestHeaders.Authorization == null || 
-             _client.DefaultRequestHeaders.Authorization.Parameter != token))
+            (httpClient.DefaultRequestHeaders.Authorization == null || 
+             httpClient.DefaultRequestHeaders.Authorization.Parameter != token))
         {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(AuthScheme, token);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(AuthScheme, token);
         }
     }
 }

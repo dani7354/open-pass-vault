@@ -16,3 +16,12 @@ public class SecurityHeaders : IMiddleware
         await next.Invoke(context);
     }
 }
+
+public static class SecurityHeadersExtensions
+{
+    public static IApplicationBuilder UseSecurityHeaders(
+        this IApplicationBuilder builder)
+    {
+        return builder.UseMiddleware<SecurityHeaders>();
+    }
+}

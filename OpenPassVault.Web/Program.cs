@@ -1,3 +1,4 @@
+using System.Net;
 using Blazor.SubtleCrypto;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -5,10 +6,13 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using OpenPassVault.Shared.Crypto;
 using OpenPassVault.Shared.Crypto.Interfaces;
 using OpenPassVault.Web;
+using OpenPassVault.Web.Extensions;
 using OpenPassVault.Web.Providers;
 using OpenPassVault.Web.Services;
 using OpenPassVault.Web.Services.Interfaces;
 
+
+const string httpClientName = "ApiClient";
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -25,8 +29,13 @@ builder.Services.AddScoped<IMasterPasswordStorage, MasterPasswordMemoryStorage>(
 
 var apiBaseAddress = builder.Configuration["ApiBaseUrl"] ?? 
                              throw new KeyNotFoundException("ApiBaseAddress is not configured");
-builder.Services.AddScoped<IHttpApiService, HttpApiService>(
-    provider => new HttpApiService(provider.GetService<IAccessTokenStorage>()!, apiBaseAddress));
+builder.Services.AddTransient<CookieHttpHandler>();
+builder.Services.AddScoped(provider => provider.GetService<IHttpClientFactory>()!.CreateClient(httpClientName))
+    .AddHttpClient(httpClientName, client => client.BaseAddress = new Uri(apiBaseAddress))
+    .AddHttpMessageHandler<CookieHttpHandler>();
+
+builder.Services.AddScoped<IHttpApiService, HttpApiService>(provider => new HttpApiService(
+    provider.GetService<IAccessTokenStorage>()!, provider.GetService<HttpClient>()!));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();

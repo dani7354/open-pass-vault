@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using OpenPassVault.API.Data.Entity;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.Shared.DTO;
@@ -14,7 +15,8 @@ public sealed class AuthController(
     ILogger<AuthController> logger,
     UserManager<ApiUser> userManager,
     SignInManager<ApiUser> signInManager,
-    ITokenService tokenService) : ControllerBase
+    IAccessTokenService accessTokenService,
+    ICsrfTokenService csrfTokenService) : ControllerBase
 {
     
     [AllowAnonymous]
@@ -42,9 +44,23 @@ public sealed class AuthController(
             logger.LogInformation($"User {user.Email} successfully logged in.");
             var userClaims = await userManager.GetClaimsAsync(user);
 
-            var token = tokenService.CreateToken(user, userClaims);
+            var sessionId = Guid.NewGuid().ToString();
+            var csrfToken =  await csrfTokenService.GenerateToken(sessionId);
+            Response.Headers[Shared.Constants.Headers.CsrfToken] = new StringValues(csrfToken);
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = false,
+                SameSite = SameSiteMode.None,
+                Secure = true,
+                IsEssential = true,
+                Expires = DateTimeOffset.Now.AddDays(accessTokenService.TokenExpirationDays),
+                Path = "/"
+            };
+            Response.Cookies.Append(Shared.Constants.Cookies.CsrfToken, csrfToken, cookieOptions);
+            
+            var token = accessTokenService.CreateToken(user, sessionId, userClaims);
             var tokenResponse = new TokenResponse {Token = token};
-
+            
             return Ok(tokenResponse);
         }
 

@@ -7,22 +7,12 @@ using OpenPassVault.Shared.Auth;
 
 namespace OpenPassVault.API.Services;
 
-public class TokenService : ITokenService
+public class AccessTokenService(byte[] tokenSigningKey, string tokenAudience, string tokenIssuer)
+    : IAccessTokenService
 {
-    private const int TokenExpirationDays = 1;
+    public int TokenExpirationDays => 1;
 
-    private readonly byte[] _tokenSigningKey;
-    private readonly string _tokenIssuer;
-    private readonly string _tokenAudience;
-
-    public TokenService(byte[] tokenSigningKey, string tokenAudience, string tokenIssuer)
-    {
-        _tokenSigningKey = tokenSigningKey;
-        _tokenIssuer = tokenIssuer;
-        _tokenAudience = tokenAudience;
-    }
-    
-    public string CreateToken(ApiUser user, IEnumerable<Claim> userClaims)
+    public string CreateToken(ApiUser user, string sessionId, IEnumerable<Claim> userClaims)
     {
         var userId = user.Id;
         var userName = user.UserName!;
@@ -35,17 +25,18 @@ public class TokenService : ITokenService
             new (JwtRegisteredClaimNames.Name, userName),
             new (JwtRegisteredClaimNames.Email, email),
             new (JwtRegisteredClaimNames.UniqueName, userName),
-            new (JwtClaimType.TokenMasterPasswordHashClaimType, masterPasswordHash)
+            new (JwtClaimType.TokenMasterPasswordHashClaimType, masterPasswordHash),
+            new (JwtClaimType.SessionId, sessionId)
         };
 
         claims.AddRange(userClaims);
 
-        var key = new SymmetricSecurityKey(_tokenSigningKey);
+        var key = new SymmetricSecurityKey(tokenSigningKey);
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Issuer = _tokenIssuer,
-            Audience = _tokenAudience,
+            Issuer = tokenIssuer,
+            Audience = tokenAudience,
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(TokenExpirationDays),
             SigningCredentials = credentials
