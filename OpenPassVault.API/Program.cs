@@ -10,6 +10,8 @@ using OpenPassVault.API.Helpers;
 using OpenPassVault.API.Middleware;
 using OpenPassVault.API.Services;
 using OpenPassVault.API.Services.Interfaces;
+using OpenPassVault.Shared.Crypto;
+using OpenPassVault.Shared.Crypto.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +44,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<SecurityHeaders>();
 builder.Services.AddScoped<CsrfProtection>();
 
+var csrfTokenKey = EnvironmentHelper.GetCsrfTokenKey();
+builder.Services.AddScoped<IHmacService, HmacService>(x => new HmacService(csrfTokenKey));
+builder.Services.AddScoped<ICaptchaService, CaptchaService>();
+
 EnvironmentHelper.LoadVariablesFromEnvFile();
 var dbConnectionString = EnvironmentHelper.GetConnectionString();
 builder.Services.AddDbContext<ApplicationDatabaseContext>(
@@ -50,7 +56,6 @@ builder.Services.AddDbContext<ApplicationDatabaseContext>(
 builder.Services.AddScoped<ISecretRepository, SecretRepository>();
 builder.Services.AddScoped<ISecretService, SecretService>();
 
-var csrfTokenKey = EnvironmentHelper.GetCsrfTokenKey();
 builder.Services.AddScoped<ICsrfTokenService, CsrfTokenService>( x => new CsrfTokenService(csrfTokenKey));
 
 var signingToken = EnvironmentHelper.GetJwtSigningKey();
