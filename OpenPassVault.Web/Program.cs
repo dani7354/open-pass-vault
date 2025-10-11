@@ -45,6 +45,7 @@ builder.Services.AddScoped<ISymmetricKeyGenerator, KeyGenerator>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IEncryptionService, SubtleCryptoWrapper>();
 builder.Services.AddScoped<ISecretService, SecretService>();
+builder.Services.AddScoped<ICaptchaApiService, CaptchaApiService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();

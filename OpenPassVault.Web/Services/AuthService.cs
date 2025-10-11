@@ -10,7 +10,8 @@ using OpenPassVault.Web.Services.Interfaces;
 namespace OpenPassVault.Web.Services;
 
 public class AuthService(
-    IHttpApiService httpApiService, 
+    IHttpApiService httpApiService,
+    ICaptchaApiService captchaApiService,
     IPasswordHasher passwordHasher,
     IAccessTokenStorage accessTokenStorage,
     IMasterPasswordStorage masterPasswordStorage) : IAuthService
@@ -56,6 +57,20 @@ public class AuthService(
         var token = await accessTokenStorage.GetToken();
        
         return string.IsNullOrEmpty(token) ? null : JwtParser.ToClaimsPrincipal(token);
+    }
+
+    public async Task<RegisterViewModel> CreateRegisterViewModel()
+    {
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = $"data:image/png;base64,{newCaptcha.CaptchaImageBase64}";
+
+        var viewModel = new RegisterViewModel()
+        {
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource
+        };
+
+        return viewModel;
     }
 
     public async Task RegisterAsync(RegisterViewModel registerViewModel)

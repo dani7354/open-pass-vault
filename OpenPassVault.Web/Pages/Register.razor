@@ -38,6 +38,13 @@
                 <InputText @bind-Value="model.ConfirmMasterPassword" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.ConfirmMasterPassword)"/>
             </div>
+            <div class="form-group mt-4">
+                <label>CAPTCHA</label>
+                <img src="@model.CaptchaImageSrc" alt="CAPTCHA"/>
+                <InputText @bind-Value="model.CaptchaCode" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.CaptchaCode)"/>
+                <input value="@model.CaptchaHmac" type="hidden" class="form-control"/>
+            </div>
             <div class="mt-4">
                 <button disabled="@loading" type="submit" class="btn btn-primary">
                     @if (loading)
@@ -57,13 +64,13 @@
     private RegisterViewModel model = new();
     private bool loading;
     private string? errorMessage;
-    
-    protected override void OnInitialized()
+
+    protected override async Task OnInitializedAsync()
     {
         if (AuthenticationStateProvider.CurrentUser != null)
-        {
             NavigationManager.NavigateTo(Urls.VaultIndex);
-        }
+
+        model = await AuthService.CreateRegisterViewModel();
     }
 
     private async Task OnValidSubmit(EditContext editContext)

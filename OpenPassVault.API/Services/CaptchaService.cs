@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using OpenPassVault.Shared.Crypto.Interfaces;
 using SkiaSharp;
 
-
 namespace OpenPassVault.API.Services;
 
 public class CaptchaService(IHmacService hmacService) : ICaptchaService
@@ -14,7 +13,6 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
     private const int CaptchaLength = 9;
     
     private static readonly char[] Characters = "abcdefghijklmnopqrstuvwxyz1234567890-".ToCharArray();
-    
     
     public Task<bool> VerifyCaptcha(string captchaResponse, string captchaHmac)
     {
@@ -44,6 +42,7 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
         using var bitmap = new SKBitmap(imageInfo);
         using var bitmapCanvas = new SKCanvas(bitmap);
         bitmapCanvas.Clear();
+
         bitmapCanvas.DrawText(
             captchaCode,
             new SKPoint(20, ImageHeight / 2 + 16), // Adjust position as needed

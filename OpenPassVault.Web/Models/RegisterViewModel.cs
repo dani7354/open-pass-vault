@@ -30,4 +30,14 @@ public class RegisterViewModel
     [Required(ErrorMessage = ErrorMessages.Required), 
      Compare(nameof(MasterPassword), ErrorMessage = ErrorMessages.Compare)]
     public string ConfirmMasterPassword { get; set; } = null!;
+
+    [Required(ErrorMessage = ErrorMessages.Required)]
+    public string CaptchaCode { get; set; } = null!;
+    
+
+    public string CaptchaHmac { get; init; } = null!;
+    
+    public string CaptchaImageSrc { get; init; } = null!;
+    
+    
 }
