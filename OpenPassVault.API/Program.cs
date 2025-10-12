@@ -45,7 +45,7 @@ builder.Services.AddSingleton<SecurityHeaders>();
 builder.Services.AddScoped<CsrfProtection>();
 
 var csrfTokenKey = EnvironmentHelper.GetCsrfTokenKey();
-builder.Services.AddScoped<IHmacService, HmacService>(x => new HmacService(csrfTokenKey));
+builder.Services.AddScoped<IHmacService, HmacService>(_ => new HmacService(csrfTokenKey));
 builder.Services.AddScoped<ICaptchaService, CaptchaService>();
 
 EnvironmentHelper.LoadVariablesFromEnvFile();
@@ -55,8 +55,7 @@ builder.Services.AddDbContext<ApplicationDatabaseContext>(
 
 builder.Services.AddScoped<ISecretRepository, SecretRepository>();
 builder.Services.AddScoped<ISecretService, SecretService>();
-
-builder.Services.AddScoped<ICsrfTokenService, CsrfTokenService>( x => new CsrfTokenService(csrfTokenKey));
+builder.Services.AddScoped<ICsrfTokenService, CsrfTokenService>();
 
 var signingToken = EnvironmentHelper.GetJwtSigningKey();
 var tokenIssuer = EnvironmentHelper.GetJwtIssuer();

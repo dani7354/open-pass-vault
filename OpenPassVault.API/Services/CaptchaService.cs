@@ -29,7 +29,6 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
             .ToArray();
         
         var captchaCode = string.Join("", captchaCodeChars);
-
         var image = await CreateImage(string.Join("", captchaCode));
         var captchaHmac = await hmacService.CreateHmac(System.Text.Encoding.UTF8.GetBytes(captchaCode));
         
@@ -41,8 +40,7 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
         var imageInfo = new  SKImageInfo(width: ImageWidth, height: ImageHeight, SKColorType.RgbaF32);
         using var bitmap = new SKBitmap(imageInfo);
         using var bitmapCanvas = new SKCanvas(bitmap);
-        //bitmapCanvas.Clear();
-
+        
         const int xCoordinate = 20;
         const int yCoordinate = ImageHeight / 2 + 16;
         bitmapCanvas.DrawText(
