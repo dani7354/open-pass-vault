@@ -36,17 +36,19 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
         return new NewCaptchaResponse { CaptchaImageBase64 = image, CaptchaHmac = captchaHmac};
     }
     
-    private async Task<string> CreateImage(string captchaCode)
+    private Task<string> CreateImage(string captchaCode)
     {
         var imageInfo = new  SKImageInfo(width: ImageWidth, height: ImageHeight, SKColorType.RgbaF32);
         using var bitmap = new SKBitmap(imageInfo);
         using var bitmapCanvas = new SKCanvas(bitmap);
-        bitmapCanvas.Clear();
+        //bitmapCanvas.Clear();
 
+        const int xCoordinate = 20;
+        const int yCoordinate = ImageHeight / 2 + 16;
         bitmapCanvas.DrawText(
             captchaCode,
-            new SKPoint(20, ImageHeight / 2 + 16), // Adjust position as needed
-            new SKFont(SKTypeface.FromFamilyName("Arial"), 32),
+            new SKPoint(xCoordinate, yCoordinate), // Adjust position as needed
+            new SKFont(SKTypeface.FromFamilyName("Arial"), 24),
             new SKPaint
             {
                 Color = SKColors.Gray,
@@ -55,7 +57,7 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
             }
         );
 
-        using var bitmapPng = bitmap.Encode(SKEncodedImageFormat.Png, 100);
-        return Convert.ToBase64String(bitmapPng.ToArray());
+        using var bitmapPng = bitmap.Encode(SKEncodedImageFormat.Png, 65);
+        return Task.FromResult(Convert.ToBase64String(bitmapPng.ToArray()));
     }
 }
