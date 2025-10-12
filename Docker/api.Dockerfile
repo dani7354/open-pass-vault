@@ -19,6 +19,12 @@ FROM build AS publish
 RUN dotnet publish OpenPassVault.API.csproj -c Release -o /app/publish --no-restore
 
 FROM base AS final
+
+# Install dependencies for SkiaSharp, see https://stackoverflow.com/questions/74063162/deploy-skiasharp-on-a-container-running-net-6-alpine-linux
+RUN apt update && \
+    apt install -y libfontconfig1 libice6 libsm6 && \
+    apt clean
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "OpenPassVault.API.dll"]

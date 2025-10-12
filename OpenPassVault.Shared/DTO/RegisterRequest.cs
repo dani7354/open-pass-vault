@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices.JavaScript;
 using OpenPassVault.Shared.Validation;
 using OpenPassVault.Shared.Validation.Attributes;
 
@@ -20,9 +19,15 @@ public class RegisterRequest
 
     [Required(ErrorMessage = ErrorMessages.Required), 
      Compare(nameof(Password), ErrorMessage = ErrorMessages.Compare)] 
-    public string ConfirmPassword { get; set; } = null!;
+    public string ConfirmPassword { get; init; } = null!;
 
     [Required(ErrorMessage = ErrorMessages.Required), 
      MaxLength(RegisterFieldLengths.MasterPasswordHashMaxLength, ErrorMessage = ErrorMessages.MaxLength)] 
     public string MasterPasswordHash { get; init; } = null!;
+    
+    [Required(ErrorMessage = ErrorMessages.Required)]
+    public string CaptchaCode { get; init; } = null!;
+
+    [Required(ErrorMessage = ErrorMessages.Required)]
+    public string CaptchaHmac { get; init; } = null!;
 }

@@ -38,6 +38,15 @@
                 <InputText @bind-Value="model.ConfirmMasterPassword" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.ConfirmMasterPassword)"/>
             </div>
+            <div class="form-group">
+                <img src="@model.CaptchaImageSrc" alt="CAPTCHA" />                
+            </div>
+            <div class="form-group">
+                <label>CAPTCHA</label>
+                <InputText @bind-Value="model.CaptchaCode" type="text" class="form-control"/>
+                <ValidationMessage For="@(() => model.CaptchaCode)"/>
+                <input @bind="model.CaptchaHmac" type="hidden" class="form-control"/>
+            </div>
             <div class="mt-4">
                 <button disabled="@loading" type="submit" class="btn btn-primary">
                     @if (loading)
@@ -57,13 +66,13 @@
     private RegisterViewModel model = new();
     private bool loading;
     private string? errorMessage;
-    
-    protected override void OnInitialized()
+
+    protected override async Task OnInitializedAsync()
     {
         if (AuthenticationStateProvider.CurrentUser != null)
-        {
             NavigationManager.NavigateTo(Urls.VaultIndex);
-        }
+
+        model = await AuthService.CreateRegisterViewModel();
     }
 
     private async Task OnValidSubmit(EditContext editContext)
@@ -76,7 +85,9 @@
         }
         catch (Exception)
         {
-            SetValidationMessageWhenErrorOccurs("Oprettelse mislykkedes. Prøv igen.");
+            SetValidationMessageWhenErrorOccurs(
+                "Oprettelse mislykkedes. Kontroller venligst, at dine oplysninger er indtastet korrekt, og prøv igen.");
+            model = await AuthService.RefreshRegisterViewModel(model);
         }
         finally
         {

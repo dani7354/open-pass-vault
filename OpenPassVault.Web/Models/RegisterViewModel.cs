@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using OpenPassVault.Shared.Validation;
 using OpenPassVault.Shared.Validation.Attributes;
-using OpenPassVault.Web.Pages;
 
 namespace OpenPassVault.Web.Models;
 
@@ -30,4 +29,11 @@ public class RegisterViewModel
     [Required(ErrorMessage = ErrorMessages.Required), 
      Compare(nameof(MasterPassword), ErrorMessage = ErrorMessages.Compare)]
     public string ConfirmMasterPassword { get; set; } = null!;
+
+    [Required(ErrorMessage = ErrorMessages.Required)]
+    public string CaptchaCode { get; set; } = null!;
+    
+    public string CaptchaHmac { get; set; } = null!;
+    
+    public string CaptchaImageSrc { get; init; } = null!;
 }
