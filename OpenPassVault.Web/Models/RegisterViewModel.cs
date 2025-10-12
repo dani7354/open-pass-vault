@@ -35,7 +35,7 @@ public class RegisterViewModel
     public string CaptchaCode { get; set; } = null!;
     
 
-    public string CaptchaHmac { get; init; } = null!;
+    public string CaptchaHmac { get; set; } = null!;
     
     public string CaptchaImageSrc { get; init; } = null!;
     

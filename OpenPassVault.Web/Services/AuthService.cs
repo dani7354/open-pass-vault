@@ -1,3 +1,4 @@
+using System.Data;
 using System.Security.Claims;
 using OpenPassVault.Shared.Auth;
 using OpenPassVault.Shared.Crypto.Interfaces;
@@ -62,9 +63,9 @@ public class AuthService(
     public async Task<RegisterViewModel> CreateRegisterViewModel()
     {
         var newCaptcha = await captchaApiService.GetNewCaptcha();
-        var captchaImageSource = $"data:image/png;base64,{newCaptcha.CaptchaImageBase64}";
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
 
-        var viewModel = new RegisterViewModel()
+        var viewModel = new RegisterViewModel
         {
             CaptchaHmac = newCaptcha.CaptchaHmac,
             CaptchaImageSrc = captchaImageSource
@@ -72,24 +73,48 @@ public class AuthService(
 
         return viewModel;
     }
+    
+    public async Task<RegisterViewModel> RefreshRegisterViewModel(RegisterViewModel currentViewModel)
+    {
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
+        
+        var newViewModel = new RegisterViewModel
+        {
+            Email = currentViewModel.Email,
+            Password = currentViewModel.Password,
+            ConfirmPassword = currentViewModel.ConfirmPassword,
+            MasterPassword = currentViewModel.MasterPassword,
+            ConfirmMasterPassword = currentViewModel.ConfirmMasterPassword,
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource,
+            CaptchaCode = string.Empty
+        };
+
+        return newViewModel;
+    }
 
     public async Task RegisterAsync(RegisterViewModel registerViewModel)
     {
         var masterPasswordHash = await passwordHasher.HashPassword(registerViewModel.MasterPassword);
         var request = new RegisterRequest
         {
-            Email = registerViewModel.Email!,
-            Password = registerViewModel.Password!,
-            ConfirmPassword = registerViewModel.ConfirmPassword!,
-            MasterPasswordHash = masterPasswordHash
+            Email = registerViewModel.Email,
+            Password = registerViewModel.Password,
+            ConfirmPassword = registerViewModel.ConfirmPassword,
+            MasterPasswordHash = masterPasswordHash,
+            CaptchaCode = registerViewModel.CaptchaCode,
+            CaptchaHmac = registerViewModel.CaptchaHmac
         };
         
         await httpApiService.PostAsync<string>(RegisterUrl, request);
-    }   
+    }
     
     public async Task LogoutAsync()
     {
         await accessTokenStorage.ClearToken();
         await masterPasswordStorage.ClearMasterPassword();
     }
+    
+    private static string FormatImageSource(string base64) => $"data:image/png;base64,{base64}";
 }

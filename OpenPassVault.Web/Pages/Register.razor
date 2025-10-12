@@ -38,12 +38,14 @@
                 <InputText @bind-Value="model.ConfirmMasterPassword" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.ConfirmMasterPassword)"/>
             </div>
-            <div class="form-group mt-4">
+            <div class="form-group">
+                <img src="@model.CaptchaImageSrc" alt="CAPTCHA" />                
+            </div>
+            <div class="form-group">
                 <label>CAPTCHA</label>
-                <img src="@model.CaptchaImageSrc" alt="CAPTCHA"/>
-                <InputText @bind-Value="model.CaptchaCode" type="password" class="form-control"/>
+                <InputText @bind-Value="model.CaptchaCode" type="text" class="form-control"/>
                 <ValidationMessage For="@(() => model.CaptchaCode)"/>
-                <input value="@model.CaptchaHmac" type="hidden" class="form-control"/>
+                <input @bind="model.CaptchaHmac" type="hidden" class="form-control"/>
             </div>
             <div class="mt-4">
                 <button disabled="@loading" type="submit" class="btn btn-primary">
@@ -83,7 +85,9 @@
         }
         catch (Exception)
         {
-            SetValidationMessageWhenErrorOccurs("Oprettelse mislykkedes. Prøv igen.");
+            SetValidationMessageWhenErrorOccurs(
+                "Oprettelse mislykkedes. Kontroller venligst, at dine oplysninger er indtastet korrekt, og prøv igen.");
+            model = await AuthService.RefreshRegisterViewModel(model);
         }
         finally
         {

@@ -16,7 +16,8 @@ public sealed class AuthController(
     UserManager<ApiUser> userManager,
     SignInManager<ApiUser> signInManager,
     IAccessTokenService accessTokenService,
-    ICsrfTokenService csrfTokenService) : ControllerBase
+    ICsrfTokenService csrfTokenService,
+    ICaptchaService captchaService) : ControllerBase
 {
     
     [AllowAnonymous]
@@ -73,7 +74,14 @@ public sealed class AuthController(
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-
+        
+        var captchaValid = await captchaService.VerifyCaptcha(
+            registerRequest.CaptchaCode, 
+            registerRequest.CaptchaHmac);
+        
+        if (!captchaValid)
+            return BadRequest("Invalid captcha");
+        
         var username = registerRequest.Email;
         var user = new ApiUser
         {
@@ -83,9 +91,10 @@ public sealed class AuthController(
         };
 
         var result = await userManager.CreateAsync(user, registerRequest.Password);
-        logger.LogInformation($"User {user.Email} successfully registered.");
         if (!result.Succeeded)
             return BadRequest($"Failed to create user {username}!");
+        
+        logger.LogInformation($"User {user.Email} successfully registered.");
         
         return Ok();
     }

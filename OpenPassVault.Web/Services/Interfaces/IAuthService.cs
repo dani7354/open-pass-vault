@@ -10,6 +10,7 @@ public interface IAuthService
     Task<ClaimsPrincipal?> GetClaimsPrincipalFromToken();
     Task RegisterAsync(RegisterViewModel registerViewModel);
     Task<RegisterViewModel> CreateRegisterViewModel();
+    Task<RegisterViewModel> RefreshRegisterViewModel(RegisterViewModel viewModel);
     Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginDto);
     Task LogoutAsync();
 }
