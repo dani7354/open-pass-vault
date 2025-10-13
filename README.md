@@ -1,5 +1,9 @@
 # OpenPassVault
+![.NET test (xunit)](https://github.com/dani7354/open-pass-vault/actions/workflows/10-dotnet-test.yml/badge.svg)
+![Docker Image Build and Push](https://github.com/dani7354/open-pass-vault/actions/workflows/30-build-docker-images.yml/badge.svg)
+
 ## Setup dev environment
+TODO...
 ### Web API Certificates and TLS
 Generate development certificates by running:
 
