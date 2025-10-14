@@ -1,5 +1,11 @@
 # OpenPassVault
+![.NET test (xunit)](https://github.com/dani7354/open-pass-vault/actions/workflows/10-dotnet-test.yml/badge.svg)
+![Docker Image Build and Push](https://github.com/dani7354/open-pass-vault/actions/workflows/30-build-docker-images.yml/badge.svg)
+
+A web-based password manager written in .NET - a web API and a Blazor WASM application. The current demo release is running [here](https://opv-demo.stuhrs.dk). It's also possible to run an instance locally by following the steps described below.
+
 ## Setup dev environment
+
 ### Web API Certificates and TLS
 Generate development certificates by running:
 
@@ -32,7 +38,6 @@ MYSQL_DATABASE=OpenPassVault
 MYSQL_USER=
 MYSQL_PASSWORD=
 TZ=Europe/Paris
-
 ```
 
 ### Nginx Certificates and TLS
@@ -41,3 +46,8 @@ The Nginx server serving the Blazor app (OpenPassVault.Web) needs certificates i
 `$ openssl pkcs12 -in Docker/certs/certificate.pfx -out Docker/certs/certificate.pem -clcerts -nokeys`
 
 `$ openssl pkcs12 -in Docker/certs/certificate.pfx -out Docker/certs/key.pem -nocerts -noenc`
+
+### Start services
+Build and run the two services with the following docker compose command:
+
+`$ docker compose -f compose.yaml -f compose.dev.yaml up --build`
