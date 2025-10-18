@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using OpenPassVault.Web.Services.Interfaces;
+using OpenPassVault.Web.Services.Exceptions;
 using System.Net.Http.Headers;
 
 namespace OpenPassVault.Web.Services;
@@ -22,14 +23,11 @@ public class HttpApiService(IAccessTokenStorage accessTokenStorage, HttpClient h
             var responseContent = await response.Content.ReadAsStringAsync();
 
             return string.IsNullOrEmpty(responseContent) ? default : JsonSerializer.Deserialize<T>(responseContent);
-
         }
         catch (HttpRequestException e)
         {
             if (e.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                throw new UnauthorizedAccessException();
-            }
+                throw new ApiRequestUnauthorizedException(e.Message);
             throw;
         }
     }
@@ -49,9 +47,7 @@ public class HttpApiService(IAccessTokenStorage accessTokenStorage, HttpClient h
         catch (HttpRequestException e)
         {
             if (e.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                throw new UnauthorizedAccessException();
-            }
+                throw new ApiRequestUnauthorizedException(e.Message);
             throw;
         }
     }
@@ -67,9 +63,7 @@ public class HttpApiService(IAccessTokenStorage accessTokenStorage, HttpClient h
         catch (HttpRequestException e)
         {
             if (e.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                throw new UnauthorizedAccessException();
-            }
+                throw new ApiRequestUnauthorizedException(e.Message);
             throw;
         }   
     }

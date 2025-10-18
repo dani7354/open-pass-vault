@@ -1,8 +1,9 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OpenPassVault.Shared.Auth;
-using OpenPassVault.Shared.DTO;
+using OpenPassVault.Web.Helpers;
 using OpenPassVault.Web.Models;
 using OpenPassVault.Web.Services.Interfaces;
 
@@ -12,11 +13,15 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly ClaimsPrincipal _defaultPrincipal = new(new ClaimsIdentity());
     private readonly IAuthService _authService;
+    private readonly NavigationManager _navigationManager;
     public User? CurrentUser { get; private set; }
 
-    public ApiAuthenticationStateProvider(IAuthService authService)
+    public ApiAuthenticationStateProvider(
+        IAuthService authService, 
+        NavigationManager navigationManager)
     {
         _authService = authService;
+        _navigationManager = navigationManager;
         AuthenticationStateChanged += OnAuthenticationStateChangedAsync;
     }
     
@@ -43,7 +48,10 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     {
         var authenticationState = await task;
         if (authenticationState.User.Identity is not { IsAuthenticated: true })
+        {
             CurrentUser = null;
+            _navigationManager.NavigateTo(Urls.Login);
+        }
         else
             CurrentUser = GetUserFromClaimsPrincipal(authenticationState.User);
     }

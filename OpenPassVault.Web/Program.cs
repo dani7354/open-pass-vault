@@ -1,4 +1,3 @@
-using System.Net;
 using Blazor.SubtleCrypto;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;

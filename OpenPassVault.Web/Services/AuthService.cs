@@ -1,4 +1,3 @@
-using System.Data;
 using System.Security.Claims;
 using OpenPassVault.Shared.Auth;
 using OpenPassVault.Shared.Crypto.Interfaces;
@@ -35,7 +34,7 @@ public class AuthService(
             throw new AuthenticationException();
 
         var principal = JwtParser.ToClaimsPrincipal(response.Token);
-        var masterPasswordHash = principal?.Claims.First(
+        var masterPasswordHash = principal.Claims.First(
             c => c.Type == JwtClaimType.TokenMasterPasswordHashClaimType).Value;
 
         if (string.IsNullOrEmpty(masterPasswordHash))
