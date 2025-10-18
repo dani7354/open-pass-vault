@@ -22,7 +22,7 @@ public class SecretService(
             var response = await httpApiService.GetAsync<IList<SecretListItemResponse>>(BaseUrl);
             return response ?? [];
         }
-        catch (RequestUnauthorizedException)
+        catch (ApiRequestUnauthorizedException)
         {
             await authenticationStateProvider.Logout();
             return [];
@@ -36,7 +36,7 @@ public class SecretService(
             var response = await httpApiService.GetAsync<SecretDetailsResponse>($"{BaseUrl}/{id}");
             return response ?? null;
         }
-        catch (RequestUnauthorizedException)
+        catch (ApiRequestUnauthorizedException)
         {
             await authenticationStateProvider.Logout();
             return null;
@@ -50,7 +50,7 @@ public class SecretService(
             throw new AuthenticationException();
 
         var encryptedContent =  await encryptionService.Encrypt(secretCreateViewModel.ContentPlain, masterPassword);
-        var secretRequest = new SecretCreateRequest()
+        var secretRequest = new SecretCreateRequest
         {
             Name = secretCreateViewModel.Name,
             Description = secretCreateViewModel.Description,
@@ -58,8 +58,15 @@ public class SecretService(
             Type = secretCreateViewModel.Type,
             Content = encryptedContent
         };
-
-        await httpApiService.PostAsync<SecretDetailsResponse>(BaseUrl, secretRequest);
+        
+        try
+        {
+            await httpApiService.PostAsync<SecretDetailsResponse>(BaseUrl, secretRequest);
+        }
+        catch (ApiRequestUnauthorizedException)
+        {
+            await authenticationStateProvider.Logout();
+        }
     }
 
     public async Task DeleteSecret(string id)
@@ -68,7 +75,7 @@ public class SecretService(
         {
             await httpApiService.DeleteAsync($"{BaseUrl}/{id}");
         }
-        catch (RequestUnauthorizedException)
+        catch (ApiRequestUnauthorizedException)
         {
             await authenticationStateProvider.Logout();
         }
