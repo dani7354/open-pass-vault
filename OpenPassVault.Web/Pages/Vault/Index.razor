@@ -1,5 +1,5 @@
 @page "/vault"
-@using Microsoft.AspNetCore.Authorization
+
 @attribute [Authorize]
 
 @inject ISecretService SecretService
@@ -109,7 +109,6 @@ else
             SetBusyState(true);
             await SecretService.DeleteSecret(secretId);
             await RefreshSecrets();
-
         }
         catch (Exception)
         {

@@ -52,6 +52,26 @@ public class HttpApiService(IAccessTokenStorage accessTokenStorage, HttpClient h
         }
     }
 
+    public async Task<T?> PutAsync<T>(string url, object data)
+    {
+        try
+        {
+            await AddAuthorizationHeaderIfExists();
+            var response = await httpClient.PutAsync(url, CreateContent(data));
+            response.EnsureSuccessStatusCode();
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+        
+            return string.IsNullOrEmpty(responseContent) ? default : JsonSerializer.Deserialize<T>(responseContent);
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == HttpStatusCode.Unauthorized)
+                throw new ApiRequestUnauthorizedException(e.Message);
+            throw;
+        }
+    }
+
     public async Task DeleteAsync(string url)
     {
         try

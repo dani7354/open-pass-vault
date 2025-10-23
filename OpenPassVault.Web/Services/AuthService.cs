@@ -19,6 +19,8 @@ public class AuthService(
     private const string AuthBaseUrl = "auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
     private const string RegisterUrl = $"{AuthBaseUrl}/register";
+    private const string DeleteUserUrl = $"{AuthBaseUrl}/delete";
+    private const string UserInfoUrl = $"{AuthBaseUrl}/user-info";
 
     
     public async Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginViewModel)
@@ -108,7 +110,41 @@ public class AuthService(
         
         await httpApiService.PostAsync<string>(RegisterUrl, request);
     }
-    
+
+    public async Task<EditUserViewModel> CreateEditUserViewModel()
+    {
+        var userInfo = await httpApiService.GetAsync<UserInfoResponse>(UserInfoUrl);
+        if (userInfo == null)
+            throw new ApiRequestUnauthorizedException("Failed to get user info.");
+        
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
+
+        var viewModel = new EditUserViewModel
+        {
+            Id = userInfo.Id,
+            Email = userInfo.Email,
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource
+        };
+
+        return viewModel;
+    }
+
+    public async Task UpdateUserInfo(EditUserViewModel editUserViewModel)
+    {
+        var request = new UpdateUserRequest
+        {
+            Email = editUserViewModel.Email,
+            NewPassword = editUserViewModel.NewPassword,
+            ConfirmNewPassword = editUserViewModel.ConfirmNewPassword,
+            CaptchaCode = editUserViewModel.CaptchaCode,
+            CaptchaHmac = editUserViewModel.CaptchaHmac
+        };
+        
+        await httpApiService.PutAsync<string>(UserInfoUrl, request);
+    }
+
     public async Task LogoutAsync()
     {
         await accessTokenStorage.ClearToken();
