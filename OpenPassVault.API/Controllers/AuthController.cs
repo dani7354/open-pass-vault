@@ -98,6 +98,38 @@ public sealed class AuthController(
         
         return Ok();
     }
+    
+    [HttpGet("user-info")]
+    public async Task<IActionResult> UserInfo()
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+
+        var userInfoResponse = new UserInfoResponse
+        {
+            Id = user.Id,
+            Email = user.Email!,
+        };
+        
+        return Ok(userInfoResponse);
+    }
+    
+    [HttpDelete("delete")]
+    public async Task<IActionResult> Delete()
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        var result = await userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+            return BadRequest("Failed to delete user account!");
+        
+        logger.LogInformation($"User {user.Email} account successfully deleted.");
+        
+        return Ok();
+    }
 }
 
 

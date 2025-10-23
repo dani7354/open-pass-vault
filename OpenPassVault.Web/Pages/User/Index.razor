@@ -1,10 +1,13 @@
-@page "/register"
+@page "/user"
 
 @inject NavigationManager NavigationManager
 @inject ApiAuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthService AuthService
 
-<PageTitle>Opret bruger</PageTitle>
+@attribute [Authorize]
+
+<PageTitle>Brugerinfo</PageTitle>
+
 
 <div class="card">
     <h4 class="card-header">Opret</h4>
@@ -12,6 +15,7 @@
         <ErrorAlert ErrorMessage="@errorMessage" />
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
             <DataAnnotationsValidator/>
+            <input @bind="model.Id" type="hidden" class="form-control"/>
             <div class="form-group mt-2">
                 <label>Email</label>
                 <InputText @bind-Value="model.Email" class="form-control"/>
@@ -19,23 +23,13 @@
             </div>
             <div class="form-group mt-2">
                 <label>Password</label>
-                <InputText @bind-Value="model.Password" type="password" class="form-control"/>
-                <ValidationMessage For="@(() => model.Password)"/>
+                <InputText @bind-Value="model.NewPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.NewPassword)"/>
             </div>
             <div class="form-group mt-2">
                 <label>Bekræft password</label>
-                <InputText @bind-Value="model.ConfirmPassword" type="password" class="form-control"/>
-                <ValidationMessage For="@(() => model.ConfirmPassword)"/>
-            </div>
-            <div class="form-group mt-2">
-                <label>Master-password</label>
-                <InputText @bind-Value="model.MasterPassword" type="password" class="form-control"/>
-                <ValidationMessage For="@(() => model.MasterPassword)"/>
-            </div>
-            <div class="form-group mt-2">
-                <label>Bekræft master-password</label>
-                <InputText @bind-Value="model.ConfirmMasterPassword" type="password" class="form-control"/>
-                <ValidationMessage For="@(() => model.ConfirmMasterPassword)"/>
+                <InputText @bind-Value="model.ConfirmNewPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ConfirmNewPassword)"/>
             </div>
             <div class="form-group">
                 <img src="@model.CaptchaImageSrc" alt="CAPTCHA" />                
@@ -61,42 +55,36 @@
 </div>
 
 
+
+
 @code {
-    private RegisterViewModel model = new();
     private bool loading;
     private string? errorMessage;
+    private EditUserViewModel model = new();
 
     protected override async Task OnInitializedAsync()
     {
-        if (AuthenticationStateProvider.CurrentUser != null)
-            NavigationManager.NavigateTo(Urls.VaultIndex);
-
-        model = await AuthService.CreateRegisterViewModel();
+        model = await AuthService.CreateEditUserViewModel();
     }
 
-    private async Task OnValidSubmit(EditContext editContext)
+    private async Task OnValidSubmit(EditContext context)
     {
         try
         {
             loading = true;
-            await AuthService.RegisterAsync(model);
+            await AuthService.UpdateUserInfo(model);
             NavigationManager.NavigateTo(Urls.Login);
         }
         catch (Exception)
         {
-            SetValidationMessageWhenErrorOccurs(
-                "Oprettelse mislykkedes. Kontroller venligst, at dine oplysninger er indtastet korrekt, og prøv igen.");
-            model = await AuthService.RefreshRegisterViewModel(model);
+            errorMessage = "Opdatering af brugerinfo mislykkedes. Prøv igen senere.";
+            StateHasChanged();
         }
         finally
         {
             loading = false;
         }
+        
     }
     
-    private void SetValidationMessageWhenErrorOccurs(string errorMessageText)
-    {
-        errorMessage = errorMessageText;
-        StateHasChanged();
-    }
 }

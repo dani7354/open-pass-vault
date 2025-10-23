@@ -5,8 +5,8 @@ namespace OpenPassVault.Web.Services;
 
 public class CaptchaApiService(IHttpApiService httpApiService) : ICaptchaApiService
 {
-    public const string CaptchaBaseUrl = "captcha";
-    public const string NewCaptchaUrl = $"{CaptchaBaseUrl}/new";
+    private const string CaptchaBaseUrl = "captcha";
+    private const string NewCaptchaUrl = $"{CaptchaBaseUrl}/new";
     
     public async Task<NewCaptchaResponse> GetNewCaptcha()
     {
