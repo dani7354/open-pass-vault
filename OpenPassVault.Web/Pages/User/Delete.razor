@@ -1,0 +1,71 @@
+@page "/user/delete"
+
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+
+[Authorize]
+
+<PageTitle>Slet bruger</PageTitle>
+<div class="card">
+    <h4 class="card-header">Slet bruger</h4>
+    <div class="card-body">
+        <ErrorAlert ErrorMessage="@errorMessage" />
+        <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator/>
+            <div class="form-group mt-2">
+                <label>Bekræft password</label>
+                <InputText @bind-Value="model.Password" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.Password)"/>
+            </div>
+            <div class="form-group">
+                <img src="@model.CaptchaImageSrc" alt="CAPTCHA" />                
+            </div>
+            <div class="form-group mt-2">
+                <label>CAPTCHA</label>
+                <InputText @bind-Value="model.CaptchaCode" type="text" class="form-control"/>
+                <ValidationMessage For="@(() => model.CaptchaCode)"/>
+            </div>
+            <div class="mt-4">
+                <button disabled="@loading" type="submit" class="btn btn-danger">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    Slet bruger
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    private bool loading;
+    private string? errorMessage;
+    private DeleteUserViewModel model = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        model = await AuthService.CreateDeleteUserViewModel();
+    }
+
+    private async Task OnValidSubmit(EditContext editcontext)
+    {
+        try
+        {
+            loading = true;
+            await AuthService.DeleteUser(model);
+            NavigationManager.NavigateTo(Urls.Index);
+        }
+        catch (Exception)
+        {
+            errorMessage = "Sletning af bruger mislykkedes. Prøv igen.";
+            model = await AuthService.CreateDeleteUserViewModel();
+            StateHasChanged();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

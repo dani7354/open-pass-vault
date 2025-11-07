@@ -2,6 +2,7 @@ namespace OpenPassVault.Web.Helpers;
 
 public static class Urls
 {
+    public const string Index = "/";
     public const string Login = "/login";
     public const string Register = "/register";
     

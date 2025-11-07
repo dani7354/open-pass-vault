@@ -62,10 +62,10 @@
 
 
 @code {
-    private RegisterViewModel model = new();
     private bool loading;
     private string? errorMessage;
-
+    private RegisterViewModel model = new();
+    
     protected override async Task OnInitializedAsync()
     {
         if (AuthenticationStateProvider.CurrentUser != null)

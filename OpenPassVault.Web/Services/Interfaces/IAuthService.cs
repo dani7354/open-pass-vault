@@ -12,5 +12,7 @@ public interface IAuthService
     Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginDto);
     Task<EditUserViewModel> CreateEditUserViewModel();
     Task UpdateUserInfo(EditUserViewModel editUserViewModel);
+    Task<DeleteUserViewModel> CreateDeleteUserViewModel();
+    Task DeleteUser(DeleteUserViewModel deleteUserViewModel);
     Task LogoutAsync();
 }

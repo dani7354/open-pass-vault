@@ -21,6 +21,9 @@ public class AuthService(
     private const string RegisterUrl = $"{AuthBaseUrl}/register";
     private const string DeleteUserUrl = $"{AuthBaseUrl}/delete";
     private const string UserInfoUrl = $"{AuthBaseUrl}/user-info";
+    
+    private const string CaptchaCodeParam = "captchaCode";
+    private const string CaptchaHmacParam = "captchaHmac";
 
     
     public async Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginViewModel)
@@ -143,6 +146,34 @@ public class AuthService(
         };
         
         await httpApiService.PutAsync<string>(UserInfoUrl, request);
+    }
+    
+    public async Task<DeleteUserViewModel> CreateDeleteUserViewModel()
+    {
+        var userInfo = await httpApiService.GetAsync<UserInfoResponse>(UserInfoUrl);
+        if (userInfo == null)
+            throw new ApiRequestUnauthorizedException("Failed to get user info.");
+        
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
+
+        var deleteUserViewModel = new DeleteUserViewModel
+        {
+            UserId = userInfo.Id,
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource
+        };
+
+        return deleteUserViewModel;
+    }
+
+    public async Task DeleteUser(DeleteUserViewModel deleteUserViewModel)
+    {
+        var url = $"{DeleteUserUrl}?{CaptchaCodeParam}={Uri.EscapeDataString(deleteUserViewModel.CaptchaCode)}";
+        url += $"&{CaptchaHmacParam}={Uri.EscapeDataString(deleteUserViewModel.CaptchaHmac)}";
+        
+        await httpApiService.DeleteAsync(url);
+        await LogoutAsync();
     }
 
     public async Task LogoutAsync()
