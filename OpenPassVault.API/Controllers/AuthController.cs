@@ -116,11 +116,17 @@ public sealed class AuthController(
     }
     
     [HttpDelete("delete")]
-    public async Task<IActionResult> Delete()
+    public async Task<IActionResult> Delete(
+        [FromQuery] string captchaCode,
+        [FromQuery] string captchaHmac)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null)
             return Unauthorized();
+        
+        var captchaValid = await captchaService.VerifyCaptcha(captchaCode, captchaHmac);
+        if (!captchaValid)
+            return BadRequest("CAPTCHA invalid!");
         
         var result = await userManager.DeleteAsync(user);
         if (!result.Succeeded)
