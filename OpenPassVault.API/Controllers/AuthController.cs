@@ -115,6 +115,53 @@ public sealed class AuthController(
         return Ok(userInfoResponse);
     }
     
+    [HttpPut("user-info")]
+    public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserRequest updateUserRequest)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        if (user.Id != updateUserRequest.Id)
+            return BadRequest("User ID mismatch!");
+        
+        var captchaValid = await captchaService.VerifyCaptcha(
+            updateUserRequest.CaptchaCode, 
+            updateUserRequest.CaptchaHmac);
+        
+        if (!captchaValid)
+            return BadRequest("CAPTCHA invalid!");
+        
+        var passwordValid = await userManager.CheckPasswordAsync(user, updateUserRequest.CurrentPassword);
+        if (!passwordValid)
+            return BadRequest("Current password is incorrect!");
+        
+        user.Email = updateUserRequest.Email;
+        user.UserName = updateUserRequest.Email;
+        
+        IdentityResult result;
+        
+        if (!string.IsNullOrWhiteSpace(updateUserRequest.NewPassword))
+        {
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            result = await userManager.ResetPasswordAsync(user, resetToken, updateUserRequest.NewPassword);
+            if (!result.Succeeded)
+                return BadRequest("Failed to update password!");
+        }
+        
+        result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return BadRequest("Failed to update user info!");
+        
+        logger.LogInformation($"User {user.Email} info successfully updated.");
+        
+        return Ok();
+    }
+    
+    
     [HttpDelete("delete")]
     public async Task<IActionResult> Delete(
         [FromQuery] string captchaCode,

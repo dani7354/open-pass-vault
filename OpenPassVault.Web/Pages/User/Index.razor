@@ -1,16 +1,14 @@
 @page "/user"
 
 @inject NavigationManager NavigationManager
-@inject ApiAuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthService AuthService
 
 @attribute [Authorize]
 
 <PageTitle>Brugerinfo</PageTitle>
 
-
 <div class="card">
-    <h4 class="card-header">Opret</h4>
+    <h4 class="card-header">Opdatér bruger</h4>
     <div class="card-body">
         <ErrorAlert ErrorMessage="@errorMessage" />
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
@@ -22,12 +20,17 @@
                 <ValidationMessage For="@(() => model.Email)"/>
             </div>
             <div class="form-group mt-2">
-                <label>Password</label>
+                <label>Nuvæerende password</label>
+                <InputText @bind-Value="model.CurrentPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.CurrentPassword)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Nyt password</label>
                 <InputText @bind-Value="model.NewPassword" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.NewPassword)"/>
             </div>
             <div class="form-group mt-2">
-                <label>Bekræft password</label>
+                <label>Bekræft nyt password</label>
                 <InputText @bind-Value="model.ConfirmNewPassword" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.ConfirmNewPassword)"/>
             </div>
@@ -46,15 +49,15 @@
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
                     }
-                    Opret
+                    Gem
                 </button>
-                <NavLink href="@Urls.Login" class="btn btn-link">Har du allerede en konto? Log ind</NavLink>
-            </div>
+                <button disabled="@loading" class="btn btn-danger" @onclick="@OnDeleteUserClicked">
+                    Slet
+                </button>
+x            </div>
         </EditForm>
     </div>
 </div>
-
-
 
 
 @code {
@@ -84,7 +87,10 @@
         {
             loading = false;
         }
-        
     }
-    
+
+    private void OnDeleteUserClicked()
+    {
+        NavigationManager.NavigateTo(Urls.DeleteUser);
+    }
 }

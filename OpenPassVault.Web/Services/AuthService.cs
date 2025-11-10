@@ -173,7 +173,6 @@ public class AuthService(
         url += $"&{CaptchaHmacParam}={Uri.EscapeDataString(deleteUserViewModel.CaptchaHmac)}";
         
         await httpApiService.DeleteAsync(url);
-        await LogoutAsync();
     }
 
     public async Task LogoutAsync()

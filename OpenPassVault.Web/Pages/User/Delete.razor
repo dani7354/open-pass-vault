@@ -1,12 +1,13 @@
 @page "/user/delete"
 
 @inject NavigationManager NavigationManager
+@inject ApiAuthenticationStateProvider AuthenticationProvider
 @inject IAuthService AuthService
 
-[Authorize]
+@attribute [Authorize]
 
 <PageTitle>Slet bruger</PageTitle>
-<div class="card">
+<div class="card text-white bg-danger">
     <h4 class="card-header">Slet bruger</h4>
     <div class="card-body">
         <ErrorAlert ErrorMessage="@errorMessage" />
@@ -55,6 +56,7 @@
         {
             loading = true;
             await AuthService.DeleteUser(model);
+            await AuthenticationProvider.Logout();
             NavigationManager.NavigateTo(Urls.Index);
         }
         catch (Exception)

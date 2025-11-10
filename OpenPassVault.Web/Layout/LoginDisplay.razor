@@ -1,10 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
-@inject Providers.ApiAuthenticationStateProvider AuthenticationStateProvider
+@inject ApiAuthenticationStateProvider AuthenticationStateProvider
 
 <AuthorizeView>
     <Authorized>
         Velkommen, @HttpUtility.HtmlEncode(AuthenticationStateProvider.CurrentUser?.Name)!
+        <a class="nav-link btn btn-link" href="user">Info</a>
         <button class="nav-link btn btn-link" @onclick="BeginLogOut">Log ud</button>
     </Authorized>
     <NotAuthorized>
