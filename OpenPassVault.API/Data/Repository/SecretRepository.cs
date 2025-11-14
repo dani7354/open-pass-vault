@@ -32,19 +32,34 @@ public class SecretRepository(ApplicationDatabaseContext dbContext) : ISecretRep
 
     public async Task Update(Secret entity, string userId)
     {
+        await UpdateEntity(entity, userId);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<int> UpdateBatch(IList<Secret> secrets, string userId)
+    {
+        foreach (var entity in secrets)
+        {
+            await UpdateEntity(entity, userId);
+        }
+        var updateCount = await dbContext.SaveChangesAsync();
+        
+        return updateCount;
+    }
+
+    private async Task UpdateEntity(Secret entity, string userId)
+    {
         var secretEntity =  await dbContext.Secret.FirstOrDefaultAsync(
             x => x.Id == entity.Id && x.UserId == userId);
         if (secretEntity == null)
             throw new NotFoundException();
-        
+            
         secretEntity.Name = entity.Name;
         secretEntity.Username = entity.Username;
         secretEntity.Type = entity.Type;
         secretEntity.Description = entity.Description;
         secretEntity.Updated = DateTime.Now;
         secretEntity.Content = entity.Content;
-        
-        await dbContext.SaveChangesAsync();
     }
 
     public async Task Delete(string id)

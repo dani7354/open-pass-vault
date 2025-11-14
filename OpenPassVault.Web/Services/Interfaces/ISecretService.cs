@@ -10,5 +10,6 @@ public interface ISecretService
     Task CreateSecret(SecretCreateViewModel secretCreateViewModel);
     Task DeleteSecret(string id);
     Task<string> DecryptSecretContent(string content);
+    Task ReencryptAllSecrets(string oldMasterPassword, string newMasterPassword);
     Task<IList<SecretTypeViewModel>> GetSecretTypes();
 }

@@ -12,7 +12,7 @@ public class SecretService(ISecretRepository secretRepository) : ISecretService
         var secretEntity = await secretRepository.GetSecret(id, userId);
         if (secretEntity == null) return null;
 
-        return new SecretDetailsResponse()
+        return new SecretDetailsResponse
         {
             Id = secretEntity.Id,
             Name = secretEntity.Name,
@@ -72,6 +72,23 @@ public class SecretService(ISecretRepository secretRepository) : ISecretService
         };
         
         await secretRepository.Update(secretEntity, userId);
+    }
+
+    public async Task<int> UpdateBatchAsync(IList<SecretUpdateRequest> secrets, string userId)
+    {
+        var secretEntities = secrets.Select(
+            secret => new SecretEntity
+        {
+            Id = secret.Id,
+            Name = secret.Name,
+            Description = secret.Description,
+            Username = secret.Username,
+            Type = secret.Type,
+            Content = secret.Content,
+            Updated = DateTime.Now
+        }).ToList();
+        
+        return await secretRepository.UpdateBatch(secretEntities, userId);
     }
 
     public Task DeleteAsync(string id, string userId)

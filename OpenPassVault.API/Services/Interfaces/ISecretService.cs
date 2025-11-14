@@ -8,5 +8,6 @@ public interface ISecretService
     Task<IList<SecretListItemResponse>> ListAsync(string userId);
     Task<string> CreateAsync(SecretCreateRequest secret, string userId);
     Task UpdateAsync(SecretUpdateRequest secret, string userId);
+    Task<int> UpdateBatchAsync(IList<SecretUpdateRequest> secrets, string userId);
     Task DeleteAsync(string id, string userId);
 }

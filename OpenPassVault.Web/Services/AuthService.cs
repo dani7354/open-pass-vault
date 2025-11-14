@@ -45,13 +45,14 @@ public class AuthService(
         if (string.IsNullOrEmpty(masterPasswordHash))
             throw new WrongMasterPasswordException();
         
+        var masterPassword = loginViewModel.MasterPassword;
         var isValid = await passwordHasher.VerifyPassword(
             hashedPassword: masterPasswordHash, 
-            loginViewModel.MasterPassword);
+            password: masterPassword);
 
         if (!isValid) throw new WrongMasterPasswordException();
         
-        await masterPasswordStorage.SetMasterPassword(masterPasswordHash);
+        await masterPasswordStorage.SetMasterPassword(masterPassword);
         await accessTokenStorage.SetToken(response.Token);
             
         return principal;
@@ -116,10 +117,7 @@ public class AuthService(
 
     public async Task<EditUserViewModel> CreateEditUserViewModel()
     {
-        var userInfo = await httpApiService.GetAsync<UserInfoResponse>(UserInfoUrl);
-        if (userInfo == null)
-            throw new ApiRequestUnauthorizedException("Failed to get user info.");
-        
+        var userInfo = await GetUserInfo();
         var newCaptcha = await captchaApiService.GetNewCaptcha();
         var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
 
@@ -133,19 +131,39 @@ public class AuthService(
 
         return viewModel;
     }
+    
+    public async Task<UserInfoResponse> GetUserInfo()
+    {
+        var userInfo = await httpApiService.GetAsync<UserInfoResponse>(UserInfoUrl);
+        if (userInfo == null)
+            throw new ApiRequestUnauthorizedException("Failed to get user info.");
+        
+        return userInfo;
+    }
 
     public async Task UpdateUserInfo(EditUserViewModel editUserViewModel)
     {
         var request = new UpdateUserRequest
         {
-            Email = editUserViewModel.Email,
+            Id = editUserViewModel.Id,
+            CurrentPassword = editUserViewModel.CurrentPassword,
             NewPassword = editUserViewModel.NewPassword,
             ConfirmNewPassword = editUserViewModel.ConfirmNewPassword,
             CaptchaCode = editUserViewModel.CaptchaCode,
             CaptchaHmac = editUserViewModel.CaptchaHmac
         };
+
+        var masterPasswordChanged = false;
+        if (!string.IsNullOrEmpty(editUserViewModel.NewMasterPassword))
+        {
+            request.MasterPasswordHash = await passwordHasher.HashPassword(editUserViewModel.NewMasterPassword);
+            masterPasswordChanged = true;
+        }
         
         await httpApiService.PutAsync<string>(UserInfoUrl, request);
+
+        if (masterPasswordChanged)
+            await masterPasswordStorage.SetMasterPassword(editUserViewModel.NewMasterPassword!);
     }
     
     public async Task<DeleteUserViewModel> CreateDeleteUserViewModel()

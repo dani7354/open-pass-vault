@@ -2,6 +2,7 @@
 
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
+@inject IUserUpdateService UserUpdateService
 
 @attribute [Authorize]
 
@@ -16,11 +17,11 @@
             <input @bind="model.Id" type="hidden" class="form-control"/>
             <div class="form-group mt-2">
                 <label>Email</label>
-                <InputText @bind-Value="model.Email" class="form-control"/>
+                <InputText @bind-Value="model.Email" class="form-control" disabled="true"/>
                 <ValidationMessage For="@(() => model.Email)"/>
             </div>
             <div class="form-group mt-2">
-                <label>Nuvæerende password</label>
+                <label>Nuværende password</label>
                 <InputText @bind-Value="model.CurrentPassword" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.CurrentPassword)"/>
             </div>
@@ -33,6 +34,16 @@
                 <label>Bekræft nyt password</label>
                 <InputText @bind-Value="model.ConfirmNewPassword" type="password" class="form-control"/>
                 <ValidationMessage For="@(() => model.ConfirmNewPassword)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Nyt master-password</label>
+                <InputText @bind-Value="model.NewMasterPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.NewMasterPassword)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Bekræft nyt master-password</label>
+                <InputText @bind-Value="model.ConfirmNewMasterPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ConfirmNewMasterPassword)"/>
             </div>
             <div class="form-group">
                 <img src="@model.CaptchaImageSrc" alt="CAPTCHA" />                
@@ -54,7 +65,7 @@
                 <button disabled="@loading" class="btn btn-danger" @onclick="@OnDeleteUserClicked">
                     Slet
                 </button>
-x            </div>
+            </div>
         </EditForm>
     </div>
 </div>
@@ -75,10 +86,10 @@ x            </div>
         try
         {
             loading = true;
-            await AuthService.UpdateUserInfo(model);
+            await UserUpdateService.UpdateUserInfo(model);
             NavigationManager.NavigateTo(Urls.Login);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             errorMessage = "Opdatering af brugerinfo mislykkedes. Prøv igen senere.";
             StateHasChanged();

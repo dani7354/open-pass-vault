@@ -5,7 +5,6 @@
 <AuthorizeView>
     <Authorized>
         Velkommen, @HttpUtility.HtmlEncode(AuthenticationStateProvider.CurrentUser?.Name)!
-        <a class="nav-link btn btn-link" href="user">Info</a>
         <button class="nav-link btn btn-link" @onclick="BeginLogOut">Log ud</button>
     </Authorized>
     <NotAuthorized>

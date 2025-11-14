@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using OpenPassVault.Shared.DTO;
 using OpenPassVault.Web.Models;
 
 namespace OpenPassVault.Web.Services.Interfaces;
@@ -11,6 +12,7 @@ public interface IAuthService
     Task<RegisterViewModel> RefreshRegisterViewModel(RegisterViewModel viewModel);
     Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginDto);
     Task<EditUserViewModel> CreateEditUserViewModel();
+    Task<UserInfoResponse> GetUserInfo();
     Task UpdateUserInfo(EditUserViewModel editUserViewModel);
     Task<DeleteUserViewModel> CreateDeleteUserViewModel();
     Task DeleteUser(DeleteUserViewModel deleteUserViewModel);

@@ -19,13 +19,20 @@ public class EditUserViewModel
      MinLength(RegisterFieldLengths.PasswordMinLength, ErrorMessage = ErrorMessages.MinLength),
      MaxLength(RegisterFieldLengths.PasswordMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
     public string CurrentPassword { get; set; } = string.Empty;
-    
+
     [MinLength(RegisterFieldLengths.PasswordMinLength, ErrorMessage = ErrorMessages.MinLength),
      MaxLength(RegisterFieldLengths.PasswordMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
-    public string NewPassword { get; set; } = string.Empty;
-    
+    public string? NewPassword { get; set; }
+
     [Compare(nameof(NewPassword), ErrorMessage = ErrorMessages.Compare)]
-    public string ConfirmNewPassword { get; set; } = string.Empty;
+    public string? ConfirmNewPassword { get; set; }
+    
+    [MinLength(RegisterFieldLengths.MasterPasswordMinLength, ErrorMessage = ErrorMessages.MinLength),
+    MaxLength(RegisterFieldLengths.MasterPasswordMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
+    public string? NewMasterPassword { get; set; }
+    
+    [Compare(nameof(NewMasterPassword), ErrorMessage = ErrorMessages.Compare)]
+    public string? ConfirmNewMasterPassword { get; set; }
 
     [Required(ErrorMessage = ErrorMessages.Required)]
     public string CaptchaCode { get; set; } = null!;

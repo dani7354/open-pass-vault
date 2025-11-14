@@ -109,7 +109,7 @@ public sealed class AuthController(
         var userInfoResponse = new UserInfoResponse
         {
             Id = user.Id,
-            Email = user.Email!,
+            Email = user.Email!
         };
         
         return Ok(userInfoResponse);
@@ -139,28 +139,26 @@ public sealed class AuthController(
         if (!passwordValid)
             return BadRequest("Current password is incorrect!");
         
-        user.Email = updateUserRequest.Email;
-        user.UserName = updateUserRequest.Email;
-        
         IdentityResult result;
-        
-        if (!string.IsNullOrWhiteSpace(updateUserRequest.NewPassword))
+        if (!string.IsNullOrEmpty(updateUserRequest.NewPassword))
         {
-            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
-            result = await userManager.ResetPasswordAsync(user, resetToken, updateUserRequest.NewPassword);
+            result = await userManager.ChangePasswordAsync(user, updateUserRequest.CurrentPassword, updateUserRequest.NewPassword);
             if (!result.Succeeded)
                 return BadRequest("Failed to update password!");
         }
-        
-        result = await userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-            return BadRequest("Failed to update user info!");
+
+        if (!string.IsNullOrEmpty(updateUserRequest.MasterPasswordHash))
+        {
+            user.MasterPasswordHash = updateUserRequest.MasterPasswordHash;
+            result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest("Failed to update user info!");
+        }
         
         logger.LogInformation($"User {user.Email} info successfully updated.");
         
         return Ok();
     }
-    
     
     [HttpDelete("delete")]
     public async Task<IActionResult> Delete(
