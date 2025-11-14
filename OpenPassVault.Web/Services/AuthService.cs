@@ -173,17 +173,10 @@ public class AuthService(
             CaptchaHmac = editUserViewModel.CaptchaHmac
         };
 
-        var masterPasswordChanged = false;
         if (!string.IsNullOrEmpty(editUserViewModel.NewMasterPassword))
-        {
             request.MasterPasswordHash = await passwordHasher.HashPassword(editUserViewModel.NewMasterPassword);
-            masterPasswordChanged = true;
-        }
         
         await httpApiService.PutAsync<string>(UserInfoUrl, request);
-
-        if (masterPasswordChanged)
-            await masterPasswordStorage.SetMasterPassword(editUserViewModel.NewMasterPassword!);
     }
     
     public async Task<DeleteUserViewModel> CreateDeleteUserViewModel()
