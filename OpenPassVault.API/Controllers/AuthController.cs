@@ -98,6 +98,89 @@ public sealed class AuthController(
         
         return Ok();
     }
+    
+    [HttpGet("user-info")]
+    public async Task<IActionResult> UserInfo()
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+
+        var userInfoResponse = new UserInfoResponse
+        {
+            Id = user.Id,
+            Email = user.Email!
+        };
+        
+        return Ok(userInfoResponse);
+    }
+    
+    [HttpPut("user-info")]
+    public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserRequest updateUserRequest)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        if (user.Id != updateUserRequest.Id)
+            return BadRequest("User ID mismatch!");
+        
+        var captchaValid = await captchaService.VerifyCaptcha(
+            updateUserRequest.CaptchaCode, 
+            updateUserRequest.CaptchaHmac);
+        
+        if (!captchaValid)
+            return BadRequest("CAPTCHA invalid!");
+        
+        var passwordValid = await userManager.CheckPasswordAsync(user, updateUserRequest.CurrentPassword);
+        if (!passwordValid)
+            return BadRequest("Current password is incorrect!");
+        
+        IdentityResult result;
+        if (!string.IsNullOrEmpty(updateUserRequest.NewPassword))
+        {
+            result = await userManager.ChangePasswordAsync(user, updateUserRequest.CurrentPassword, updateUserRequest.NewPassword);
+            if (!result.Succeeded)
+                return BadRequest("Failed to update password!");
+        }
+
+        if (!string.IsNullOrEmpty(updateUserRequest.MasterPasswordHash))
+        {
+            user.MasterPasswordHash = updateUserRequest.MasterPasswordHash;
+            result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest("Failed to update user info!");
+        }
+        
+        logger.LogInformation($"User {user.Email} info successfully updated.");
+        
+        return Ok();
+    }
+    
+    [HttpDelete("delete")]
+    public async Task<IActionResult> Delete(
+        [FromQuery] string captchaCode,
+        [FromQuery] string captchaHmac)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        var captchaValid = await captchaService.VerifyCaptcha(captchaCode, captchaHmac);
+        if (!captchaValid)
+            return BadRequest("CAPTCHA invalid!");
+        
+        var result = await userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+            return BadRequest("Failed to delete user account!");
+        
+        logger.LogInformation($"User {user.Email} account successfully deleted.");
+        
+        return Ok();
+    }
 }
 
 

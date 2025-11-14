@@ -12,7 +12,10 @@ namespace OpenPassVault.API.Controllers;
 [Route("api/secrets")]
 [ApiController]
 [Authorize]
-public sealed class SecretController(ISecretService secretService, UserManager<ApiUser> userManager) : ControllerBase
+public sealed class SecretController(
+    ISecretService secretService, 
+    UserManager<ApiUser> userManager,
+    ILogger<SecretController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult> Secrets()
@@ -61,6 +64,27 @@ public sealed class SecretController(ISecretService secretService, UserManager<A
             return BadRequest();
         }
 
+        return Ok();
+    }
+
+    [HttpPut("batch")]
+    public async Task<IActionResult> UpdateBatch(SecretUpdateBatchRequest updateBatchRequest)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null)
+            return Unauthorized();
+        
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var updateSuccessCount = await secretService.UpdateBatchAsync(updateBatchRequest.Secrets, user.Id);
+        var totalUpdates = updateBatchRequest.Secrets.Count;
+        if (updateSuccessCount != totalUpdates)
+        {
+            logger.LogError($"Not all secrets were updated {updateSuccessCount}/{totalUpdates}");
+            return BadRequest("Not all secrets were updated successfully");
+        }
+        
         return Ok();
     }
 

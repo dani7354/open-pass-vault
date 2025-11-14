@@ -1,0 +1,114 @@
+@page "/user"
+
+@inject NavigationManager NavigationManager
+@inject ApiAuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthService AuthService
+@inject IUserUpdateService UserUpdateService
+
+@attribute [Authorize]
+
+<PageTitle>Brugerinfo</PageTitle>
+
+<div class="card">
+    <h4 class="card-header">Opdatér bruger</h4>
+    <div class="card-body">
+        <ErrorAlert ErrorMessage="@errorMessage" />
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator/>
+            <input @bind="model.Id" type="hidden" class="form-control"/>
+            <div class="form-group mt-2">
+                <label>Email</label>
+                <InputText @bind-Value="model.Email" class="form-control" disabled="true"/>
+                <ValidationMessage For="@(() => model.Email)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Nuværende password</label>
+                <InputText @bind-Value="model.CurrentPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.CurrentPassword)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Nyt password</label>
+                <InputText @bind-Value="model.NewPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.NewPassword)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Bekræft nyt password</label>
+                <InputText @bind-Value="model.ConfirmNewPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ConfirmNewPassword)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Nyt master-password</label>
+                <InputText @bind-Value="model.NewMasterPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.NewMasterPassword)"/>
+            </div>
+            <div class="form-group mt-2">
+                <label>Bekræft nyt master-password</label>
+                <InputText @bind-Value="model.ConfirmNewMasterPassword" type="password" class="form-control"/>
+                <ValidationMessage For="@(() => model.ConfirmNewMasterPassword)"/>
+            </div>
+            <div class="form-group">
+                <img src="@model.CaptchaImageSrc" alt="CAPTCHA" />                
+            </div>
+            <div class="form-group">
+                <label>CAPTCHA</label>
+                <InputText @bind-Value="model.CaptchaCode" type="text" class="form-control"/>
+                <ValidationMessage For="@(() => model.CaptchaCode)"/>
+                <input @bind="model.CaptchaHmac" type="hidden" class="form-control"/>
+            </div>
+            <div class="mt-4">
+                <button disabled="@loading" type="submit" class="btn btn-primary">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    Gem
+                </button>
+                <button disabled="@loading" class="btn btn-danger" @onclick="@OnDeleteUserClicked">
+                    Slet
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    private bool loading;
+    private string? errorMessage;
+    private EditUserViewModel model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await AuthService.CreateEditUserViewModel();
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        try
+        {
+            loading = true;
+            await UserUpdateService.UpdateUserInfo(model);
+            NavigationManager.NavigateTo(Urls.Login);
+        }
+        catch (AuthenticationException)
+        {
+            await AuthenticationStateProvider.Logout();
+            NavigationManager.NavigateTo(Urls.Login);
+        }
+        catch (Exception)
+        {
+            errorMessage = "Opdatering af brugerinfo mislykkedes. Prøv igen.";
+            model = await AuthService.RefreshEditUserViewModel(model);
+            StateHasChanged();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void OnDeleteUserClicked()
+    {
+        NavigationManager.NavigateTo(Urls.DeleteUser);
+    }
+}

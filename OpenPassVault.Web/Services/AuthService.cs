@@ -19,6 +19,11 @@ public class AuthService(
     private const string AuthBaseUrl = "auth";
     private const string LoginUrl = $"{AuthBaseUrl}/login";
     private const string RegisterUrl = $"{AuthBaseUrl}/register";
+    private const string DeleteUserUrl = $"{AuthBaseUrl}/delete";
+    private const string UserInfoUrl = $"{AuthBaseUrl}/user-info";
+    
+    private const string CaptchaCodeParam = "captchaCode";
+    private const string CaptchaHmacParam = "captchaHmac";
 
     
     public async Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginViewModel)
@@ -40,13 +45,14 @@ public class AuthService(
         if (string.IsNullOrEmpty(masterPasswordHash))
             throw new WrongMasterPasswordException();
         
+        var masterPassword = loginViewModel.MasterPassword;
         var isValid = await passwordHasher.VerifyPassword(
             hashedPassword: masterPasswordHash, 
-            loginViewModel.MasterPassword);
+            password: masterPassword);
 
         if (!isValid) throw new WrongMasterPasswordException();
         
-        await masterPasswordStorage.SetMasterPassword(masterPasswordHash);
+        await masterPasswordStorage.SetMasterPassword(masterPassword);
         await accessTokenStorage.SetToken(response.Token);
             
         return principal;
@@ -108,7 +114,98 @@ public class AuthService(
         
         await httpApiService.PostAsync<string>(RegisterUrl, request);
     }
+
+    public async Task<EditUserViewModel> CreateEditUserViewModel()
+    {
+        var userInfo = await GetUserInfo();
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
+
+        var viewModel = new EditUserViewModel
+        {
+            Id = userInfo.Id,
+            Email = userInfo.Email,
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource
+        };
+
+        return viewModel;
+    }
     
+    public async Task<EditUserViewModel> RefreshEditUserViewModel(EditUserViewModel currentViewModel)
+    {
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
+        
+        var newViewModel = new EditUserViewModel
+        {
+            Id = currentViewModel.Id,
+            Email = currentViewModel.Email,
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource,
+            NewPassword = currentViewModel.NewPassword,
+            ConfirmNewPassword = currentViewModel.ConfirmNewPassword,
+            NewMasterPassword = currentViewModel.NewMasterPassword,
+            ConfirmNewMasterPassword = currentViewModel.ConfirmNewMasterPassword,
+        };
+
+        return newViewModel;
+    }
+    
+    public async Task<UserInfoResponse> GetUserInfo()
+    {
+        var userInfo = await httpApiService.GetAsync<UserInfoResponse>(UserInfoUrl);
+        if (userInfo == null)
+            throw new ApiRequestUnauthorizedException("Failed to get user info.");
+        
+        return userInfo;
+    }
+
+    public async Task UpdateUserInfo(EditUserViewModel editUserViewModel)
+    {
+        var request = new UpdateUserRequest
+        {
+            Id = editUserViewModel.Id,
+            CurrentPassword = editUserViewModel.CurrentPassword,
+            NewPassword = editUserViewModel.NewPassword,
+            ConfirmNewPassword = editUserViewModel.ConfirmNewPassword,
+            CaptchaCode = editUserViewModel.CaptchaCode,
+            CaptchaHmac = editUserViewModel.CaptchaHmac
+        };
+
+        if (!string.IsNullOrEmpty(editUserViewModel.NewMasterPassword))
+            request.MasterPasswordHash = await passwordHasher.HashPassword(editUserViewModel.NewMasterPassword);
+        
+        await httpApiService.PutAsync<string>(UserInfoUrl, request);
+    }
+    
+    public async Task<DeleteUserViewModel> CreateDeleteUserViewModel()
+    {
+        var userInfo = await httpApiService.GetAsync<UserInfoResponse>(UserInfoUrl);
+        if (userInfo == null)
+            throw new ApiRequestUnauthorizedException("Failed to get user info.");
+        
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
+
+        var deleteUserViewModel = new DeleteUserViewModel
+        {
+            UserId = userInfo.Id,
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource
+        };
+
+        return deleteUserViewModel;
+    }
+
+    public async Task DeleteUser(DeleteUserViewModel deleteUserViewModel)
+    {
+        var url = $"{DeleteUserUrl}?{CaptchaCodeParam}={Uri.EscapeDataString(deleteUserViewModel.CaptchaCode)}";
+        url += $"&{CaptchaHmacParam}={Uri.EscapeDataString(deleteUserViewModel.CaptchaHmac)}";
+        
+        await httpApiService.DeleteAsync(url);
+    }
+
     public async Task LogoutAsync()
     {
         await accessTokenStorage.ClearToken();

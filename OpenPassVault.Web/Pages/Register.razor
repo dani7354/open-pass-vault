@@ -1,5 +1,4 @@
 @page "/register"
-@using OpenPassVault.Web.Providers
 
 @inject NavigationManager NavigationManager
 @inject ApiAuthenticationStateProvider AuthenticationStateProvider
@@ -63,10 +62,10 @@
 
 
 @code {
-    private RegisterViewModel model = new();
     private bool loading;
     private string? errorMessage;
-
+    private RegisterViewModel model = new();
+    
     protected override async Task OnInitializedAsync()
     {
         if (AuthenticationStateProvider.CurrentUser != null)
