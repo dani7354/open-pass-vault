@@ -1,6 +1,7 @@
 @page "/user"
 
 @inject NavigationManager NavigationManager
+@inject ApiAuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthService AuthService
 @inject IUserUpdateService UserUpdateService
 
@@ -89,9 +90,15 @@
             await UserUpdateService.UpdateUserInfo(model);
             NavigationManager.NavigateTo(Urls.Login);
         }
-        catch (Exception ex)
+        catch (AuthenticationException)
         {
-            errorMessage = "Opdatering af brugerinfo mislykkedes. Prøv igen senere.";
+            await AuthenticationStateProvider.Logout();
+            NavigationManager.NavigateTo(Urls.Login);
+        }
+        catch (Exception)
+        {
+            errorMessage = "Opdatering af brugerinfo mislykkedes. Prøv igen.";
+            model = await AuthService.RefreshEditUserViewModel(model);
             StateHasChanged();
         }
         finally

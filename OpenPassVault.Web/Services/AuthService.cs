@@ -132,6 +132,26 @@ public class AuthService(
         return viewModel;
     }
     
+    public async Task<EditUserViewModel> RefreshEditUserViewModel(EditUserViewModel currentViewModel)
+    {
+        var newCaptcha = await captchaApiService.GetNewCaptcha();
+        var captchaImageSource = FormatImageSource(newCaptcha.CaptchaImageBase64);
+        
+        var newViewModel = new EditUserViewModel
+        {
+            Id = currentViewModel.Id,
+            Email = currentViewModel.Email,
+            CaptchaHmac = newCaptcha.CaptchaHmac,
+            CaptchaImageSrc = captchaImageSource,
+            NewPassword = currentViewModel.NewPassword,
+            ConfirmNewPassword = currentViewModel.ConfirmNewPassword,
+            NewMasterPassword = currentViewModel.NewMasterPassword,
+            ConfirmNewMasterPassword = currentViewModel.ConfirmNewMasterPassword,
+        };
+
+        return newViewModel;
+    }
+    
     public async Task<UserInfoResponse> GetUserInfo()
     {
         var userInfo = await httpApiService.GetAsync<UserInfoResponse>(UserInfoUrl);

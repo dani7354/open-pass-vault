@@ -1,3 +1,4 @@
+using OpenPassVault.Shared.DTO;
 using OpenPassVault.Web.Models;
 using OpenPassVault.Web.Providers;
 using OpenPassVault.Web.Services.Exceptions;
@@ -15,17 +16,42 @@ public class UserUpdateService(
     public async Task UpdateUserInfo(EditUserViewModel editUserViewModel)
     {
         var currentMasterPassword = await GetCurrentMasterPasswordOrFail();
-        var existingUser = await authService.GetUserInfo();
-        await authService.UpdateUserInfo(editUserViewModel);
+        var oldMasterPassword = currentMasterPassword;
         
-        if (!string.IsNullOrEmpty(editUserViewModel.NewMasterPassword))
+        var secretsReencrypted = await ReencryptSecretsIfNeeded(
+            editUserViewModel, 
+            currentMasterPassword);
+        
+        if (secretsReencrypted)
+            currentMasterPassword = editUserViewModel.NewMasterPassword!;
+        
+        try
         {
-            var newMasterPassword = editUserViewModel.NewMasterPassword;
-            await secretService.ReencryptAllSecrets(currentMasterPassword, newMasterPassword);
-            currentMasterPassword = newMasterPassword;
+            await authService.UpdateUserInfo(editUserViewModel);
+        }
+        catch (Exception)
+        {
+            if (secretsReencrypted)
+            {
+                await secretService.ReencryptAllSecrets(editUserViewModel.NewMasterPassword!, oldMasterPassword);
+                currentMasterPassword = oldMasterPassword;
+            }
         }
         
-        await LoginAfterUpdate(editUserViewModel, existingUser.Email, currentMasterPassword);
+        var userInfo = await authService.GetUserInfo();
+        await LoginAfterUpdate(editUserViewModel, userInfo.Email, currentMasterPassword);
+    }
+
+    private async Task<bool> ReencryptSecretsIfNeeded(
+        EditUserViewModel editUserViewModel,
+        string currentMasterPassword)
+    {
+        if (string.IsNullOrEmpty(editUserViewModel.NewMasterPassword)) 
+            return false;
+        
+        var newMasterPassword = editUserViewModel.NewMasterPassword;
+        await secretService.ReencryptAllSecrets(currentMasterPassword, newMasterPassword);
+        return true;
     }
 
     private async Task LoginAfterUpdate(

@@ -106,33 +106,40 @@ public class SecretService(
     
     public async Task ReencryptAllSecrets(string oldMasterPassword, string newMasterPassword)
     {
-        var secrets = await ListSecrets();
-        if (!secrets.Any())
-            return;
-        
-        var reencryptedSecrets = new List<SecretUpdateRequest>();
-        foreach (var secret in secrets)
+        try
         {
-            var secretDetails = await GetSecret(secret.Id);
-            if (secretDetails == null)
-                continue;
-
-            var decryptedContent = await encryptionService.Decrypt(secretDetails.Content, oldMasterPassword);
-            var reencryptedContent = await encryptionService.Encrypt(decryptedContent, newMasterPassword);
-            var secretUpdateRequest = new SecretUpdateRequest()
+            var secrets = await ListSecrets();
+            if (!secrets.Any())
+                return;
+        
+            var reencryptedSecrets = new List<SecretUpdateRequest>();
+            foreach (var secret in secrets)
             {
-                Id = secret.Id,
-                Name = secretDetails.Name,
-                Description = secretDetails.Description,
-                Username = secretDetails.Username,
-                Type = secretDetails.Type,
-                Content = reencryptedContent
-            };
-            reencryptedSecrets.Add(secretUpdateRequest);
-        }
+                var secretDetails = await GetSecret(secret.Id);
+                if (secretDetails == null)
+                    continue;
 
-        var batchUpdateRequest = new SecretUpdateBatchRequest { Secrets = reencryptedSecrets };
-        await UpdateBatch(batchUpdateRequest);
+                var decryptedContent = await encryptionService.Decrypt(secretDetails.Content, oldMasterPassword);
+                var reencryptedContent = await encryptionService.Encrypt(decryptedContent, newMasterPassword);
+                var secretUpdateRequest = new SecretUpdateRequest
+                {
+                    Id = secret.Id,
+                    Name = secretDetails.Name,
+                    Description = secretDetails.Description,
+                    Username = secretDetails.Username,
+                    Type = secretDetails.Type,
+                    Content = reencryptedContent
+                };
+                reencryptedSecrets.Add(secretUpdateRequest);
+            }
+
+            var batchUpdateRequest = new SecretUpdateBatchRequest { Secrets = reencryptedSecrets };
+            await UpdateBatch(batchUpdateRequest);
+        }
+        catch (ApiRequestUnauthorizedException)
+        {
+            await authenticationStateProvider.Logout();
+        }
     }
 
     public Task<IList<SecretTypeViewModel>> GetSecretTypes()

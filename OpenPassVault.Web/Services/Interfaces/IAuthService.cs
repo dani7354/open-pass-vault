@@ -12,6 +12,7 @@ public interface IAuthService
     Task<RegisterViewModel> RefreshRegisterViewModel(RegisterViewModel viewModel);
     Task<ClaimsPrincipal?> LoginAsync(LoginViewModel loginDto);
     Task<EditUserViewModel> CreateEditUserViewModel();
+    Task<EditUserViewModel> RefreshEditUserViewModel(EditUserViewModel currentViewModel);
     Task<UserInfoResponse> GetUserInfo();
     Task UpdateUserInfo(EditUserViewModel editUserViewModel);
     Task<DeleteUserViewModel> CreateDeleteUserViewModel();
