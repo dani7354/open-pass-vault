@@ -64,7 +64,7 @@ public class SecretRepository(ApplicationDatabaseContext dbContext) : ISecretRep
 
     public async Task Delete(string id, string userId)
     {
-        var secretEntity = await dbContext.Secret.FirstOrDefaultAsync(s => s.Id == userId && s.UserId == userId);
+        var secretEntity = await dbContext.Secret.FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
         if (secretEntity == null)
             throw new NotFoundException();
         
