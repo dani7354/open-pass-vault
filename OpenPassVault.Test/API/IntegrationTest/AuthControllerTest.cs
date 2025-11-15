@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Test.API.Setup;
 using System.Text;
@@ -9,12 +10,18 @@ namespace OpenPassVault.Test.API.IntegrationTest;
 
 public class AuthControllerTest : ControllerTestBase
 {
+    private const string TestUserEmail = "a-mail@gmail.com";
+    private const string TestUserPassword = "StrongPassword123!";
+    private const string TestUserMasterPasswordHash = "MasterPasswordHashExample";
+    
     public static IEnumerable<object[]> EndpointsWithAuthentication =>
         new List<object[]>
         {
             new object[] { Endpoint.AuthUserInfoEndpoint, "GET" },
             new object[] { Endpoint.AuthDeleteEndpoint, "DELETE" },
         };
+    
+    #region Tests
     
     [Theory]
     [MemberData(nameof(EndpointsWithAuthentication))]
@@ -23,7 +30,7 @@ public class AuthControllerTest : ControllerTestBase
         string httpMethod)
     {
         var client = Factory.CreateClient();
-        HttpResponseMessage? response = httpMethod switch
+        HttpResponseMessage response = httpMethod switch
         {
             "GET" => await client.GetAsync(endpoint),
             "DELETE" => await client.DeleteAsync(endpoint),
@@ -37,18 +44,40 @@ public class AuthControllerTest : ControllerTestBase
     public async Task Register_ValidInput_ReturnsSuccess()
     {
         var client = Factory.CreateClient();
-        var registerPayload = await GetRegisterRequestPayload();
-
-        var registerResponse = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerPayload);
-
-        Assert.Equal(HttpStatusCode.OK, registerResponse.StatusCode);
+        await RegisterValidTestUser(client);
     }
 
     [Fact]
     public async Task Login_ValidInput_ReturnsSuccess()
     {
         var client = Factory.CreateClient();
-        string email = "a-mail@gmail.com", password = "StrongPassword123!";
+        await RegisterValidTestUser(client);
+        var tokenResponse = await LoginValidTestUser(client);
+        
+        Assert.True(!string.IsNullOrEmpty(tokenResponse.Token));
+    }
+
+    [Fact]
+    public async Task UserInfo_AfterLogin_ReturnsUserInfo()
+    {
+        var client = Factory.CreateClient();
+        
+        await RegisterValidTestUser(client);
+        var tokenResponse = await LoginValidTestUser(client);
+               
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + tokenResponse.Token);
+        var userInfoResponse = await client.GetAsync(Endpoint.AuthUserInfoEndpoint);
+        Assert.Equal(HttpStatusCode.OK, userInfoResponse.StatusCode);
+    }
+    #endregion
+    
+    #region Helpers
+    
+    private async Task RegisterValidTestUser(
+        HttpClient client,
+        string email = TestUserEmail,
+        string password = TestUserPassword)
+    {
         var registerRequestPayload = await GetRegisterRequestPayload(
             email: email, 
             password: password, 
@@ -56,22 +85,33 @@ public class AuthControllerTest : ControllerTestBase
 
         var response = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerRequestPayload);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        
+    }
+
+    private async Task<TokenResponse> LoginValidTestUser(
+        HttpClient client,
+        string email = TestUserEmail,
+        string password = TestUserPassword)
+    {
         var loginRequest = new LoginRequest
         {
             Email = email,
             Password = password
         };
+        
         var loginRequestPayload = HttpContentHelper.CreateStringContent(loginRequest);
         var loginResponse = await client.PostAsync(Endpoint.AuthLoginEndpoint, loginRequestPayload);
+        var tokenReponse = await loginResponse.Content.ReadFromJsonAsync<TokenResponse>();
         Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+        Assert.True(!string.IsNullOrEmpty(tokenReponse?.Token));
+
+        return tokenReponse;
     }
 
     private async Task<StringContent> GetRegisterRequestPayload(
-        string email = "mail@mail.com",
-        string password = "StrongPassword123!",
-        string confirmPassword = "StrongPassword123!",
-        string masterPasswordHash = "MasterPasswordHashExample")
+        string email = TestUserEmail,
+        string password = TestUserPassword,
+        string confirmPassword = TestUserPassword,
+        string masterPasswordHash = TestUserMasterPasswordHash)
     {
         var captchaCode = "xy45xxswr";
         var key = EnvironmentHelper.GetCsrfTokenKey();
@@ -90,4 +130,5 @@ public class AuthControllerTest : ControllerTestBase
         
         return HttpContentHelper.CreateStringContent(userRegisterRequest);
     }
+    #endregion
 }
