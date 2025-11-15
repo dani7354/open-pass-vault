@@ -10,4 +10,7 @@ public static class Endpoint
     
     public const string SecretBaseEndpoint = "/api/secrets";
     public const string SecretBatchUpdateEndpoint = $"{SecretBaseEndpoint}/batch";
+    
+    public const string CaptchaEndpoint = "/api/captcha";
+    public const string CaptchaNewEndpoint = "/api/captcha/new";
 }
