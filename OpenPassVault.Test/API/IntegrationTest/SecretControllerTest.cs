@@ -33,6 +33,8 @@ public class SecretControllerTest : ControllerTestBase
         SetupAuthenticatedClient().GetAwaiter().GetResult();
     }
     
+    #region Tests
+    
     [Theory]
     [MemberData(nameof(EndpointsWithAuthentication))]
     public async Task EndpointsRequireAuthentication_NotAuthenticated_ReturnsUnauthorized(
@@ -132,6 +134,10 @@ public class SecretControllerTest : ControllerTestBase
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
     
+    #endregion
+
+    #region Helpers
+
     private async Task<SecretDetailsResponse> CreateTestSecretAsync()
     {
         var requestPayload = CreateSecretRequestPayload();
@@ -176,4 +182,5 @@ public class SecretControllerTest : ControllerTestBase
         
         _authenticatedClient.DefaultRequestHeaders.Add(HeaderNames.Cookie, csrfTokenCookie);
     }
+    #endregion
 }
