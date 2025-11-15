@@ -22,9 +22,9 @@ public class SecretControllerTest : ControllerTestBase
         {
             new object[] { Endpoint.SecretBaseEndpoint, "GET" },
             new object[] { Endpoint.SecretBaseEndpoint, "POST" },
-            new object[] { $"{Endpoint.SecretBaseEndpoint}/{Guid.NewGuid().ToString()}", "GET" },
-            new object[] { $"{Endpoint.SecretBaseEndpoint}/{Guid.NewGuid().ToString()}", "DELETE" },
-            new object[] { $"{Endpoint.SecretBaseEndpoint}/{Guid.NewGuid().ToString()}", "PUT" },
+            new object[] { $"{Endpoint.SecretBaseEndpoint}/{Guid.NewGuid()}", "GET" },
+            new object[] { $"{Endpoint.SecretBaseEndpoint}/{Guid.NewGuid()}", "DELETE" },
+            new object[] { $"{Endpoint.SecretBaseEndpoint}/{Guid.NewGuid()}", "PUT" },
             new object[] { Endpoint.SecretBatchUpdateEndpoint, "PUT" },
         };
 
