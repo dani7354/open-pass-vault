@@ -62,12 +62,21 @@ public class SecretRepository(ApplicationDatabaseContext dbContext) : ISecretRep
         secretEntity.Content = entity.Content;
     }
 
+    public async Task Delete(string id, string userId)
+    {
+        var secretEntity = await dbContext.Secret.FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
+        if (secretEntity == null)
+            throw new NotFoundException();
+        
+        dbContext.Secret.Remove(secretEntity);
+        await dbContext.SaveChangesAsync();
+    }
+    
     public async Task Delete(string id)
     {
         var secretEntity = await dbContext.Secret.FindAsync(id);
         if (secretEntity == null)
             throw new NotFoundException();
-        
         dbContext.Secret.Remove(secretEntity);
         await dbContext.SaveChangesAsync();
     }

@@ -23,13 +23,4 @@ public class ApplicationDatabaseContext(DbContextOptions<ApplicationDatabaseCont
         modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaim").HasKey(x => x.Id);
         modelBuilder.Entity<IdentityRole>().ToTable("Role").HasKey(x => x.Id); ;
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-        
-        EnvironmentHelper.LoadVariablesFromEnvFile();
-        var connectionString = EnvironmentHelper.GetConnectionString();
-        optionsBuilder.UseMySql(connectionString, MySqlServerVersion.AutoDetect(connectionString));
-    }
 }

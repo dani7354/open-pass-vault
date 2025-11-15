@@ -6,19 +6,6 @@ public static class EnvironmentHelper
 {
     private const char MultiValueDelimiter = ';';
     
-    private const string MysqlServer = "MYSQL_SERVER";
-    private const string MysqlDatabase = "MYSQL_DATABASE";
-    private const string MysqlUser = "MYSQL_USER";
-    private const string MysqlPassword = "MYSQL_PASSWORD";
-    
-    private const string JwtSigningKey = "JWT_SIGNING_KEY";
-    private const string JwtIssuer = "JWT_ISSUER";
-    private const string JwtAudience = "JWT_AUDIENCE";
-    
-    private const string CsrfTokenKey = "CSRF_TOKEN_KEY";
-    
-    private const string CorsAllowedOrigins = "CORS_ALLOWED_ORIGINS";
-    
     public static void LoadVariablesFromEnvFile()
     {
         if (Environment.GetEnvironmentVariable(Constants.AspNetCodeEnvironment) == Constants.ProductionEnvironment)
@@ -37,34 +24,34 @@ public static class EnvironmentHelper
     
     public static string GetConnectionString()
     {
-        var mysqlServer = GetEnvVariableOrFail(MysqlServer);
-        var mysqlDatabase = GetEnvVariableOrFail(MysqlDatabase);
-        var mysqlUser = GetEnvVariableOrFail(MysqlUser);
-        var mysqlPassword = GetEnvVariableOrFail(MysqlPassword);
+        var mysqlServer = GetEnvVariableOrFail(EnvironmentVariable.MysqlServer);
+        var mysqlDatabase = GetEnvVariableOrFail(EnvironmentVariable.MysqlDatabase);
+        var mysqlUser = GetEnvVariableOrFail(EnvironmentVariable.MysqlUser);
+        var mysqlPassword = GetEnvVariableOrFail(EnvironmentVariable.MysqlPassword);
 
         return $"server={mysqlServer}; database={mysqlDatabase}; user={mysqlUser}; password={mysqlPassword}";
     }
 
     public static byte[] GetJwtSigningKey()
     {
-        var signingKey = GetEnvVariableOrFail(JwtSigningKey);
+        var signingKey = GetEnvVariableOrFail(EnvironmentVariable.JwtSigningKey);
         return Convert.FromHexString(signingKey);
     }
     
-    public static string GetJwtAudience() => GetEnvVariableOrFail(JwtAudience);
+    public static string GetJwtAudience() => GetEnvVariableOrFail(EnvironmentVariable.JwtAudience);
     
     
-    public static string GetJwtIssuer() => GetEnvVariableOrFail(JwtIssuer);
+    public static string GetJwtIssuer() => GetEnvVariableOrFail(EnvironmentVariable.JwtIssuer);
 
     public static byte[] GetCsrfTokenKey()
     {
-        var key = GetEnvVariableOrFail(CsrfTokenKey);
+        var key = GetEnvVariableOrFail(EnvironmentVariable.CsrfTokenKey);
         return Convert.FromHexString(key);
     }
     
     public static string[] GetCorsAllowedOrigins()
     {
-        var origins = GetEnvVariableOrFail(CorsAllowedOrigins);
+        var origins = GetEnvVariableOrFail(EnvironmentVariable.CorsAllowedOrigins);
         return origins.Split(MultiValueDelimiter, StringSplitOptions.RemoveEmptyEntries);
     }
     

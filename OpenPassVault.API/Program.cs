@@ -1,115 +1,12 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using OpenPassVault.API.Data.Entity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using OpenPassVault.API.Data.DataContext;
-using OpenPassVault.API.Data.Interfaces;
-using OpenPassVault.API.Data.Repository;
-using OpenPassVault.API.Helpers;
-using OpenPassVault.API.Middleware;
-using OpenPassVault.API.Services;
-using OpenPassVault.API.Services.Interfaces;
-using OpenPassVault.Shared.Crypto;
-using OpenPassVault.Shared.Crypto.Interfaces;
+using OpenPassVault.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.AddServerHeader = false;
-    options.ConfigureHttpsDefaults(httpsOptions =>
-    {
-        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 |
-                                    System.Security.Authentication.SslProtocols.Tls13;
-    });
-});
-
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(p =>
-        p.WithOrigins(EnvironmentHelper.GetCorsAllowedOrigins())    
-            .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<SecurityHeaders>();
-builder.Services.AddScoped<CsrfProtection>();
-
-var csrfTokenKey = EnvironmentHelper.GetCsrfTokenKey();
-builder.Services.AddScoped<IHmacService, HmacService>(_ => new HmacService(csrfTokenKey));
-builder.Services.AddScoped<ICaptchaService, CaptchaService>();
-
-EnvironmentHelper.LoadVariablesFromEnvFile();
-var dbConnectionString = EnvironmentHelper.GetConnectionString();
-builder.Services.AddDbContext<ApplicationDatabaseContext>(
-    options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString)));
-
-builder.Services.AddScoped<ISecretRepository, SecretRepository>();
-builder.Services.AddScoped<ISecretService, SecretService>();
-builder.Services.AddScoped<ICsrfTokenService, CsrfTokenService>();
-
-var signingToken = EnvironmentHelper.GetJwtSigningKey();
-var tokenIssuer = EnvironmentHelper.GetJwtIssuer();
-var tokenAudience = EnvironmentHelper.GetJwtAudience();
-builder.Services.AddScoped<IAccessTokenService, AccessTokenService>(
-    _ => new AccessTokenService(signingToken, tokenAudience, tokenIssuer));
-
-builder.Services.AddIdentityCore<ApiUser>(o =>
-{
-    o.Password.RequireDigit = false;
-    o.Password.RequireLowercase = false;
-    o.Password.RequireUppercase = false;
-    o.Password.RequireNonAlphanumeric = false;
-    o.Password.RequiredLength = 16;
-}).AddEntityFrameworkStores<ApplicationDatabaseContext>().AddSignInManager();
-
-builder.Services.AddAuthentication(o =>
-{
-    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
-{
-    o.RequireHttpsMetadata = false;
-    o.SaveToken = true;
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidAudience = tokenAudience,
-        ValidIssuer = tokenIssuer,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(signingToken),
-        ValidateIssuer = true,
-        ValidateAudience = false,
-        RequireExpirationTime = true,
-        ValidateLifetime = true
-    };
-});
+var startup = new Startup(builder.Configuration);
+startup.ConfigureServices(builder.Services, builder.WebHost);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-else if (app.Environment.IsProduction())
-{ 
-    app.UseSecurityHeaders();
-}
-
-app.UseCsrfProtection();
-app.UseCors();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
+startup.Configure(app, app.Environment);
 
 app.Run();
