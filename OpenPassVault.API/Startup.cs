@@ -37,7 +37,24 @@ public class Startup
         });
 
         services.AddOpenApi();
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        services.AddHttpContextAccessor();
+       
+        EnvironmentHelper.LoadVariablesFromEnvFile();
+        var dbConnectionString = EnvironmentHelper.GetConnectionString();
+        services.AddDbContext<ApplicationDatabaseContext>(
+            options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString)));
 
+        services.AddScoped<ISecretRepository, SecretRepository>();
+        services.AddScoped<ISecretService, SecretService>();
+        
+        ConfigureWebSecurityServices(services);
+        ConfigureAuthentication(services);
+    }
+
+    private void ConfigureWebSecurityServices(IServiceCollection services)
+    {
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(p =>
@@ -46,26 +63,17 @@ public class Startup
                     .AllowAnyHeader()
                     .AllowCredentials());
         });
-
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddHttpContextAccessor();
-        services.AddSingleton<SecurityHeaders>();
-        services.AddScoped<CsrfProtection>();
-
+        
         var csrfTokenKey = EnvironmentHelper.GetCsrfTokenKey();
         services.AddScoped<IHmacService, HmacService>(_ => new HmacService(csrfTokenKey));
         services.AddScoped<ICaptchaService, CaptchaService>();
-
-        EnvironmentHelper.LoadVariablesFromEnvFile();
-        var dbConnectionString = EnvironmentHelper.GetConnectionString();
-        services.AddDbContext<ApplicationDatabaseContext>(
-            options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString)));
-
-        services.AddScoped<ISecretRepository, SecretRepository>();
-        services.AddScoped<ISecretService, SecretService>();
         services.AddScoped<ICsrfTokenService, CsrfTokenService>();
+        services.AddScoped<CsrfProtection>();
+        services.AddSingleton<SecurityHeaders>();
+    }
 
+    private void ConfigureAuthentication(IServiceCollection services)
+    {
         var signingToken = EnvironmentHelper.GetJwtSigningKey();
         var tokenIssuer = EnvironmentHelper.GetJwtIssuer();
         var tokenAudience = EnvironmentHelper.GetJwtAudience();
