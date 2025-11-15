@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenPassVault.API.Data.DataContext;
@@ -31,9 +32,10 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
             services.RemoveAll(typeof(ApplicationDatabaseContext));
             services.RemoveAll(typeof(DbContextOptions<ApplicationDatabaseContext>));
             services.RemoveAll(typeof(IDbContextOptionsConfiguration<ApplicationDatabaseContext>));
+            services.RemoveAll(typeof(DbContextOptions<ApplicationDatabaseContext>));
             
             services.AddDbContext<ApplicationDatabaseContext>(
-                options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()), ServiceLifetime.Singleton);
+                options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
 
             services.AddIdentityCore<ApiUser>()
                 .AddEntityFrameworkStores<ApplicationDatabaseContext>();

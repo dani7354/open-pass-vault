@@ -1,5 +1,9 @@
 using System.Net;
+using OpenPassVault.Shared.DTO;
 using OpenPassVault.Test.API.Setup;
+using System.Text;
+using OpenPassVault.API.Helpers;
+using OpenPassVault.Shared.Crypto;
 
 namespace OpenPassVault.Test.API.IntegrationTest;
 
@@ -27,5 +31,32 @@ public class AuthControllerTest : ControllerTestBase
         };
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+    
+    [Fact]
+    public async Task Register_ValidInput_ReturnsSuccess()
+    {
+        var client = Factory.CreateClient();
+        var captchaCode = "xy45xxswr";
+        var key = EnvironmentHelper.GetCsrfTokenKey();
+        var hmacService = new HmacService(key);
+        var captchaHmac = await hmacService.CreateHmac(Encoding.UTF8.GetBytes(captchaCode));
+        
+        var password = "StrongPassword123!";
+        var masterPasswordHash = "MasterPasswordHashExample";
+        var userRegisterRequest = new RegisterRequest
+        {
+            Email = "mail@mail.com",
+            Password = password,
+            ConfirmPassword = password,
+            MasterPasswordHash = masterPasswordHash,
+            CaptchaCode = captchaCode,
+            CaptchaHmac = captchaHmac
+        };
+        var registerPayload = HttpContentHelper.CreateStringContent(userRegisterRequest);
+
+        var registerResponse = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerPayload);
+
+        Assert.Equal(HttpStatusCode.OK, registerResponse.StatusCode);
     }
 }
