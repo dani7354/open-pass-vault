@@ -41,5 +41,6 @@
     &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.Shared.UsernameValidCharsAttributeTests.Test1&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.Shared.UsernameValidCharsAttributeTests&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.TestLogin&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.EndpointsRequireAuthentication_NotAuthenticated_ReturnsUnauthorized&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

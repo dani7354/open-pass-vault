@@ -12,13 +12,28 @@ public class AuthControllerTest
     {
         _factory = new CustomWebApplicationFactory<Startup>();
     }
-
-    [Fact]
-    public async Task TestLogin()
+    
+    public static IEnumerable<object[]> EndpointsWithAuthentication =>
+        new List<object[]>
+        {
+            new object[] { Endpoint.AuthUserInfoEndpoint, "GET" },
+            new object[] { Endpoint.AuthDeleteEndpoint, "DELETE" },
+        };
+    
+    [Theory]
+    [MemberData(nameof(EndpointsWithAuthentication))]
+    public async Task EndpointsRequireAuthentication_NotAuthenticated_ReturnsUnauthorized(
+        string endpoint, 
+        string httpMethod)
     {
         var client = _factory.CreateClient();
-        var res = await client.GetAsync("api/auth/user-info");
-        Assert.True(res.StatusCode == (HttpStatusCode)401);
+        HttpResponseMessage? response = httpMethod switch
+        {
+            "GET" => await client.GetAsync(endpoint),
+            "DELETE" => await client.DeleteAsync(endpoint),
+            _ => throw new NotSupportedException($"HTTP method {httpMethod} is not supported in this test.")
+        };
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
-    
 }
