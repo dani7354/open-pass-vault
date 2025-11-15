@@ -49,11 +49,11 @@ public static class AuthRequestHelper
 
         Assert.NotNull(csrfTokenCookie);
         
-        var tokenReponse = await loginResponse.Content.ReadFromJsonAsync<TokenResponse>();
+        var tokenResponse = await loginResponse.Content.ReadFromJsonAsync<TokenResponse>();
         Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
-        Assert.True(!string.IsNullOrEmpty(tokenReponse?.Token));
+        Assert.True(!string.IsNullOrEmpty(tokenResponse?.Token));
 
-        return (csrfTokenCookie, tokenReponse);
+        return (csrfTokenCookie, tokenResponse);
     }
 
     public static async Task<StringContent> GetRegisterRequestPayload(

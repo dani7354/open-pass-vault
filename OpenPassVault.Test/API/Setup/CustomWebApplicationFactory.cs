@@ -32,7 +32,6 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
             services.RemoveAll(typeof(ApplicationDatabaseContext));
             services.RemoveAll(typeof(DbContextOptions<ApplicationDatabaseContext>));
             services.RemoveAll(typeof(IDbContextOptionsConfiguration<ApplicationDatabaseContext>));
-            services.RemoveAll(typeof(DbContextOptions<ApplicationDatabaseContext>));
             
             services.AddDbContext<ApplicationDatabaseContext>(
                 options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()), ServiceLifetime.Singleton);

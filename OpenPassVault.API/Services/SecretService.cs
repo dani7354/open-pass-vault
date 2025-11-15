@@ -93,6 +93,6 @@ public class SecretService(ISecretRepository secretRepository) : ISecretService
 
     public Task DeleteAsync(string id, string userId)
     {
-        return secretRepository.Delete(id);
+        return secretRepository.Delete(id, userId);
     }
 }

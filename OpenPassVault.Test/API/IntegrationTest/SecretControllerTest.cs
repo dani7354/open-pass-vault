@@ -30,7 +30,7 @@ public class SecretControllerTest : ControllerTestBase
 
     public SecretControllerTest()
     {
-        SetupAuthenticatedClientAsync().GetAwaiter().GetResult();
+        SetupAuthenticatedClient().GetAwaiter().GetResult();
     }
     
     [Theory]
@@ -163,7 +163,7 @@ public class SecretControllerTest : ControllerTestBase
         return HttpContentHelper.CreateStringContent(newSecretRequest);
     }
     
-    private async Task SetupAuthenticatedClientAsync()
+    private async Task SetupAuthenticatedClient()
     {
         _authenticatedClient = Factory.CreateClient();
         await AuthRequestHelper.RegisterValidTestUser(_authenticatedClient);
