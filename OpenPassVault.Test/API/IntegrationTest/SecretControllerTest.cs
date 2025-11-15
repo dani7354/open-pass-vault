@@ -57,7 +57,7 @@ public class SecretControllerTest : ControllerTestBase
     {
         var response = await _authenticatedClient.GetAsync(Endpoint.SecretBaseEndpoint);
 
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var secrets = await response.Content.ReadFromJsonAsync<SecretListItemResponse[]>();
         Assert.NotNull(secrets);
