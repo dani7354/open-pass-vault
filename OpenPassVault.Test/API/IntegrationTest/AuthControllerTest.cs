@@ -21,6 +21,16 @@ public class AuthControllerTest : ControllerTestBase
             new object[] { Endpoint.AuthDeleteEndpoint, "DELETE" },
         };
     
+    public static IEnumerable<object[]> InvalidEmailAddresses =>
+        new List<object[]>
+        {
+            new object[] { "plainaddress" },
+            new object[] { "@missingusername.com" },
+            new object[] { "usern ame@.com" },
+            new object[] { "username\n@com" },
+            new object[] { "username@" },
+        };
+    
     #region Tests
     
     [Theory]
@@ -45,6 +55,41 @@ public class AuthControllerTest : ControllerTestBase
     {
         var client = Factory.CreateClient();
         await RegisterValidTestUser(client);
+    }
+    
+    [Fact]
+    public async Task Register_PasswordMismatch_ReturnsBadRequest()
+    {
+        var client = Factory.CreateClient();
+        var registerRequestPayload = await GetRegisterRequestPayload(
+            password: "Password1!",
+            confirmPassword: "Password2!");
+        
+        var response = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerRequestPayload);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+    
+    [Theory]
+    [MemberData(nameof(InvalidEmailAddresses))]
+    public async Task Register_InvalidEmail_ReturnsBadRequest(string email)
+    {
+        var client = Factory.CreateClient();
+        var registerRequestPayload = await GetRegisterRequestPayload(
+            email: email);
+        
+        var response = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerRequestPayload);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+    
+    [Fact]
+    public async Task Register_DuplicateEmail_ReturnsBadRequest()
+    {
+        var client = Factory.CreateClient();
+        await RegisterValidTestUser(client);
+        
+        var registerRequestPayload = await GetRegisterRequestPayload();
+        var response = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerRequestPayload);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
