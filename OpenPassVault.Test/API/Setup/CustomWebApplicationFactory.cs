@@ -23,7 +23,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         Environment.SetEnvironmentVariable(EnvironmentVariable.MysqlPassword, new string('0', 16));
         Environment.SetEnvironmentVariable(EnvironmentVariable.JwtAudience, "localhost");
         Environment.SetEnvironmentVariable(EnvironmentVariable.JwtIssuer, "localhost");
-        Environment.SetEnvironmentVariable(EnvironmentVariable.JwtSigningKey, new string('0', 32));
+        Environment.SetEnvironmentVariable(EnvironmentVariable.JwtSigningKey, new string('0', 128));
         Environment.SetEnvironmentVariable(EnvironmentVariable.CsrfTokenKey, new string('0', 64));
         Environment.SetEnvironmentVariable(EnvironmentVariable.CorsAllowedOrigins, "http://localhost");
         
@@ -35,7 +35,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
             services.RemoveAll(typeof(DbContextOptions<ApplicationDatabaseContext>));
             
             services.AddDbContext<ApplicationDatabaseContext>(
-                options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+                options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()), ServiceLifetime.Singleton);
 
             services.AddIdentityCore<ApiUser>()
                 .AddEntityFrameworkStores<ApplicationDatabaseContext>();

@@ -37,26 +37,57 @@ public class AuthControllerTest : ControllerTestBase
     public async Task Register_ValidInput_ReturnsSuccess()
     {
         var client = Factory.CreateClient();
+        var registerPayload = await GetRegisterRequestPayload();
+
+        var registerResponse = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerPayload);
+
+        Assert.Equal(HttpStatusCode.OK, registerResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Login_ValidInput_ReturnsSuccess()
+    {
+        var client = Factory.CreateClient();
+        string email = "a-mail@gmail.com", password = "StrongPassword123!";
+        var registerRequestPayload = await GetRegisterRequestPayload(
+            email: email, 
+            password: password, 
+            confirmPassword: password);
+
+        var response = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerRequestPayload);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        
+        var loginRequest = new LoginRequest
+        {
+            Email = email,
+            Password = password
+        };
+        var loginRequestPayload = HttpContentHelper.CreateStringContent(loginRequest);
+        var loginResponse = await client.PostAsync(Endpoint.AuthLoginEndpoint, loginRequestPayload);
+        Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+    }
+
+    private async Task<StringContent> GetRegisterRequestPayload(
+        string email = "mail@mail.com",
+        string password = "StrongPassword123!",
+        string confirmPassword = "StrongPassword123!",
+        string masterPasswordHash = "MasterPasswordHashExample")
+    {
         var captchaCode = "xy45xxswr";
         var key = EnvironmentHelper.GetCsrfTokenKey();
         var hmacService = new HmacService(key);
         var captchaHmac = await hmacService.CreateHmac(Encoding.UTF8.GetBytes(captchaCode));
         
-        var password = "StrongPassword123!";
-        var masterPasswordHash = "MasterPasswordHashExample";
         var userRegisterRequest = new RegisterRequest
         {
-            Email = "mail@mail.com",
+            Email = email,
             Password = password,
-            ConfirmPassword = password,
+            ConfirmPassword = confirmPassword,
             MasterPasswordHash = masterPasswordHash,
             CaptchaCode = captchaCode,
             CaptchaHmac = captchaHmac
         };
-        var registerPayload = HttpContentHelper.CreateStringContent(userRegisterRequest);
-
-        var registerResponse = await client.PostAsync(Endpoint.AuthRegisterEndpoint, registerPayload);
-
-        Assert.Equal(HttpStatusCode.OK, registerResponse.StatusCode);
+        
+        return HttpContentHelper.CreateStringContent(userRegisterRequest);
     }
 }

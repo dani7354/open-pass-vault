@@ -52,5 +52,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f393d2c8_002D383d_002D4b3e_002Da13b_002D1fa5954239ec/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Register_ValidInput_ReturnsSuccess" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Register_ValidInput_ReturnsSuccess&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Login&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Login_ValidInput_ReturnsSuccess&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
