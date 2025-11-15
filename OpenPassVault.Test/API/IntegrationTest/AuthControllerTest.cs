@@ -1,18 +1,10 @@
 using System.Net;
 using OpenPassVault.Test.API.Setup;
-using OpenPassVault.API;
 
 namespace OpenPassVault.Test.API.IntegrationTest;
 
-public class AuthControllerTest
+public class AuthControllerTest : ControllerTestBase
 {
-    private readonly CustomWebApplicationFactory<Startup> _factory;
-    
-    public AuthControllerTest()
-    {
-        _factory = new CustomWebApplicationFactory<Startup>();
-    }
-    
     public static IEnumerable<object[]> EndpointsWithAuthentication =>
         new List<object[]>
         {
@@ -26,7 +18,7 @@ public class AuthControllerTest
         string endpoint, 
         string httpMethod)
     {
-        var client = _factory.CreateClient();
+        var client = Factory.CreateClient();
         HttpResponseMessage? response = httpMethod switch
         {
             "GET" => await client.GetAsync(endpoint),
