@@ -54,5 +54,11 @@
     &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Register_ValidInput_ReturnsSuccess&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Login&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Login_ValidInput_ReturnsSuccess&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.UserInfo_AfterLogin_ReturnsUserInfo&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Register_PasswordMismatch_ReturnsBadRequest&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Register_InvalidEmail_ReturnsBadRequest&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.AuthControllerTest.Register_DuplicateEmail_ReturnsBadRequest&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.CaptchaControllerTest.GetCaptcha_ReturnsOk&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0DAEF47B-0A17-4E3D-92C2-B1FF3E96B1C7::net9.0::OpenPassVault.Test.API.IntegrationTest.CaptchaControllerTest.GetCaptcha_DifferentCalls_ReturnsDifferentCaptchas&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -23,7 +23,7 @@ public class SecretControllerTest : ControllerTestBase
         string httpMethod)
     {
         var client = Factory.CreateClient();
-        HttpResponseMessage? response = httpMethod switch
+        HttpResponseMessage response = httpMethod switch
         {
             "GET" => await client.GetAsync(endpoint),
             "POST" => await client.PostAsync(endpoint, null!),

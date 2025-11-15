@@ -6,7 +6,6 @@ namespace OpenPassVault.Test.API.IntegrationTest;
 
 public class CaptchaControllerTest : ControllerTestBase
 {
-    
     [Fact]
     public async Task GetCaptcha_ReturnsOk()
     {
