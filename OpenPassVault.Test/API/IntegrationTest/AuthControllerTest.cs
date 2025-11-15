@@ -5,8 +5,6 @@ namespace OpenPassVault.Test.API.IntegrationTest;
 
 public class AuthControllerTest : ControllerTestBase
 {
-
-
     public static IEnumerable<object[]> EndpointsWithAuthentication =>
         new List<object[]>
         {
@@ -22,6 +20,8 @@ public class AuthControllerTest : ControllerTestBase
             new object[] { "usern ame@.com" },
             new object[] { "username\n@com" },
             new object[] { "username@" },
+            new object[] { "@" },
+            new object[] { "" },
         };
 
     #region Tests

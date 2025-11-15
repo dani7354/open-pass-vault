@@ -57,7 +57,7 @@ public sealed class SecretController(
         
         try
         {
-            await secretService.UpdateAsync(updateRequest, id);
+            await secretService.UpdateAsync(updateRequest, user.Id);
         }
         catch (NotFoundException)
         {
@@ -120,6 +120,6 @@ public sealed class SecretController(
             return NotFound();
         }
         
-        return Ok();
+        return NoContent();
     }
 }
