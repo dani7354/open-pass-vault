@@ -18,6 +18,7 @@ public class SecretCreateRequest
 
     [Required(ErrorMessage = ErrorMessages.Required), 
      MaxLength(SecretFieldLengths.ContentMaxLength, ErrorMessage = ErrorMessages.MaxLength)] 
+    [ValidBase64String]
     public string Content { get; set; } = null!;
     
     [MaxLength(SecretFieldLengths.UsernameMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
