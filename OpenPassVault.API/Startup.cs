@@ -12,6 +12,8 @@ using OpenPassVault.API.Services;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.Shared.Crypto;
 using OpenPassVault.Shared.Crypto.Interfaces;
+using OpenPassVault.Shared.Services;
+using OpenPassVault.Shared.Services.Interfaces;
 
 namespace OpenPassVault.API;
 

@@ -26,6 +26,7 @@ public class RegisterRequest
     public string MasterPasswordHash { get; init; } = null!;
     
     [Required(ErrorMessage = ErrorMessages.Required)]
+    [ValidCaptchaCodeFormat]
     public string CaptchaCode { get; init; } = null!;
 
     [Required(ErrorMessage = ErrorMessages.Required)]

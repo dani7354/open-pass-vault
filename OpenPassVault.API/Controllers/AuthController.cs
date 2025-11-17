@@ -5,6 +5,7 @@ using Microsoft.Extensions.Primitives;
 using OpenPassVault.API.Data.Entity;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.Shared.DTO;
+using OpenPassVault.Shared.Services.Interfaces;
 
 namespace OpenPassVault.API.Controllers;
 
