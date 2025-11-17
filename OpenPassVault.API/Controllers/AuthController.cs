@@ -6,6 +6,7 @@ using OpenPassVault.API.Data.Entity;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Shared.Services.Interfaces;
+using OpenPassVault.Shared.Validation.Attributes;
 
 namespace OpenPassVault.API.Controllers;
 
@@ -163,9 +164,12 @@ public sealed class AuthController(
     
     [HttpDelete("delete")]
     public async Task<IActionResult> Delete(
-        [FromQuery] string captchaCode,
+        [FromQuery, ValidCaptchaCodeFormat] string captchaCode,
         [FromQuery] string captchaHmac)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null)
             return Unauthorized();
