@@ -8,6 +8,7 @@ public class SecretUpdateRequest
 {
     [Required(ErrorMessage = ErrorMessages.Required), 
      MaxLength(SecretFieldLengths.IdMaxLength, ErrorMessage = ErrorMessages.MaxLength)]
+    [ValidGuidFormat]
     public string Id { get; set; } = null!;
     
     [Required(ErrorMessage = ErrorMessages.Required), 

@@ -7,6 +7,7 @@ namespace OpenPassVault.Shared.DTO;
 public class UpdateUserRequest
 {
     [Required(ErrorMessage = ErrorMessages.Required)]
+    [ValidGuidFormat]
     public string Id { get; set; } = null!;
     
     [Required(ErrorMessage = ErrorMessages.Required),
