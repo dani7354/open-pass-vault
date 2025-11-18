@@ -15,6 +15,5 @@ public static class Constants
     public static class Headers
     {
         public const string CsrfToken = "X-CSRF-Token";
-        public const string Authorization = "Authorization";
     }
 }
