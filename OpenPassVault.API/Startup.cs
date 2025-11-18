@@ -116,11 +116,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (env.IsProduction())
-        {
-            app.UseSecurityHeaders();
-        }
-
+        app.UseSecurityHeaders();
         app.UseCsrfProtection();
         app.UseCors();
         app.UseRouting();
