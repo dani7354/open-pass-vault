@@ -14,15 +14,10 @@ public class ValidGuidFormatAttribute : ValidationAttribute
             if (valueStr.Length != GuidLength)
                 return false;
             
-            try
-            {
-                _ = Guid.Parse(valueStr);
-                return true;
-            }
-            catch (FormatException)
-            {
+            if (!Guid.TryParse(valueStr, out _))
                 return false;
-            }
+
+            return true;
         }
 
         return true;    
