@@ -21,13 +21,13 @@ public class SecurityHeadersTest : ControllerTestBase
         var response = await _client.GetAsync(_testEndpoint);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.True(response.Headers.Contains(HeaderNames.XContentTypeOptions));
+        Assert.True(response.Headers.Contains(HeaderNames.StrictTransportSecurity));
         var headerValue = response.Headers.GetValues(HeaderNames.StrictTransportSecurity).FirstOrDefault();
         Assert.Equal("max-age=31536000; includeSubDomains; preload", headerValue);
     }
     
     [Fact]
-    public async Task ContentTypeOptionsHeader_ArePresent()
+    public async Task ContentTypeOptionsHeader_IsPresent()
     {
         var response = await _client.GetAsync(_testEndpoint);
 
@@ -38,7 +38,7 @@ public class SecurityHeadersTest : ControllerTestBase
     }
     
     [Fact]
-    public async Task CorsOriginsHeader_ArePresent()
+    public async Task CorsHeaders_ArePresent()
     {
         var origin = "http://localhost";
         _client.DefaultRequestHeaders.Add(HeaderNames.Origin, origin);
