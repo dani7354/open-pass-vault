@@ -16,7 +16,7 @@ public class SecurityHeadersTest : ControllerTestBase
     }
     
     [Fact]
-    public async Task HstsHeader_ArePresent()
+    public async Task HstsHeader_IsPresent()
     {
         var response = await _client.GetAsync(_testEndpoint);
 
