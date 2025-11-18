@@ -12,6 +12,8 @@ using OpenPassVault.API.Services;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.Shared.Crypto;
 using OpenPassVault.Shared.Crypto.Interfaces;
+using OpenPassVault.Shared.Services;
+using OpenPassVault.Shared.Services.Interfaces;
 
 namespace OpenPassVault.API;
 
@@ -114,11 +116,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (env.IsProduction())
-        {
-            app.UseSecurityHeaders();
-        }
-
+        app.UseSecurityHeaders();
         app.UseCsrfProtection();
         app.UseCors();
         app.UseRouting();

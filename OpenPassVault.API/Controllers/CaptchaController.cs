@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OpenPassVault.API.Services.Interfaces;
+using OpenPassVault.Shared.Services.Interfaces;
 
 namespace OpenPassVault.API.Controllers;
 

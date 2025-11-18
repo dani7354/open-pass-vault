@@ -5,6 +5,7 @@ using OpenPassVault.API.Data.Entity;
 using OpenPassVault.API.Data.Exceptions;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.Shared.DTO;
+using OpenPassVault.Shared.Validation.Attributes;
 using Secret = OpenPassVault.API.Data.Entity.Secret;
 
 namespace OpenPassVault.API.Controllers;
@@ -29,8 +30,11 @@ public sealed class SecretController(
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Secret>> Secret(string id)
+    public async Task<ActionResult<Secret>> Secret([ValidGuidFormat]string id)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null)
             return Unauthorized();
@@ -43,7 +47,7 @@ public sealed class SecretController(
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, SecretUpdateRequest updateRequest)
+    public async Task<IActionResult> Update([ValidGuidFormat]string id, SecretUpdateRequest updateRequest)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null)
@@ -105,8 +109,11 @@ public sealed class SecretController(
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete([ValidGuidFormat]string id)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null)
             return Unauthorized();

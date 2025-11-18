@@ -11,11 +11,15 @@ public class ValidSecretTypeAttributeTest
         new object[] { "" },
         new object[] { " " },
         new object[] { "---- Vælg ----" },
-        new object[] { "c4rd" },
-        new object[] { "hello" },
+        new object[] { "Accountt" },
+        new object[] { "Carrte" },
+        new object[] { "Kkey" },
+        new object[] { "\n" },
+        new object[] { "<img src=\"\" onerror=\"alert(1);\"/>" },
         new object[] { "999" },
         new object[] { "-1" },
         new object[] { "2.5" },
+        new object[] { null! },
     };
 
     [Theory]

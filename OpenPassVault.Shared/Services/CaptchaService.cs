@@ -1,10 +1,10 @@
-using OpenPassVault.API.Services.Interfaces;
+using OpenPassVault.Shared.Services.Interfaces;
 using OpenPassVault.Shared.DTO;
 using System.Security.Cryptography;
 using OpenPassVault.Shared.Crypto.Interfaces;
 using SkiaSharp;
 
-namespace OpenPassVault.API.Services;
+namespace OpenPassVault.Shared.Services;
 
 public class CaptchaService(IHmacService hmacService) : ICaptchaService
 {
@@ -33,6 +33,15 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
         var captchaHmac = await hmacService.CreateHmac(System.Text.Encoding.UTF8.GetBytes(captchaCode));
         
         return new NewCaptchaResponse { CaptchaImageBase64 = image, CaptchaHmac = captchaHmac};
+    }
+    
+    public bool CaptchaFormatIsValid(string captchaCode)
+    {
+        if (captchaCode.Length != CaptchaLength)
+            return false;
+
+        var charSet = Characters.ToHashSet();
+        return captchaCode.All(ch => charSet.Contains(ch));
     }
     
     private Task<string> CreateImage(string captchaCode)

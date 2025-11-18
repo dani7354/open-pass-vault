@@ -1,17 +1,16 @@
+using Microsoft.Net.Http.Headers;
+
 namespace OpenPassVault.API.Middleware;
 
 public class SecurityHeaders : IMiddleware
 {
-    private const string HstsHeader = "Strict-Transport-Security";
     private const string HstsValue = "max-age=31536000; includeSubDomains; preload";
-    
-    private const string ContentTypeOptionsHeader = "X-Content-Type-Options";
-    private const string ContentTypeOptionsValue = "nosniff";
+    private const string XContentTypeOptionsValue = "nosniff";
     
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        context.Response.Headers[HstsHeader] = HstsValue;
-        context.Response.Headers[ContentTypeOptionsHeader] = ContentTypeOptionsValue;
+        context.Response.Headers[HeaderNames.StrictTransportSecurity] = HstsValue;
+        context.Response.Headers[HeaderNames.XContentTypeOptions] = XContentTypeOptionsValue;
         
         await next.Invoke(context);
     }

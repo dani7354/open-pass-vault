@@ -13,7 +13,7 @@ public class SecretControllerTest : ControllerTestBase
     private const string TestSecretType = "Account";
     private const string TestSecretDescription = "My description...";
     private const string TestSecretName = "My Account";
-    private const string TestSecretContent = "SuperSecretContent";
+    private const string TestSecretContent = "U3VwZXJTZWNyZXRDb250ZW50Cg==";  // SuperSecretContent
     
     private HttpClient _authenticatedClient = null!;
     

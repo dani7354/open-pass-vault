@@ -25,7 +25,7 @@ public class ValidSecretTypeAttribute : ValidationAttribute
             return false;
         }
 
-        if (int.TryParse(valueStr, out var intValue) &&  (intValue < _minValue || intValue > _maxValue))
+        if (int.TryParse(valueStr, out var intValue) && (intValue < _minValue || intValue > _maxValue))
         {
             ErrorMessage = SecretTypeNotParsedErrorMessage;
             return false;

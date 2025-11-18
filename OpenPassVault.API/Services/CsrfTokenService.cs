@@ -22,6 +22,9 @@ public class CsrfTokenService(IHmacService hmacService) : ICsrfTokenService
     public async Task<bool> ValidateToken(string uniqueId, string fullToken)
     {
         var tokenSplit = fullToken.Split(Delimiter);
+        if (tokenSplit.Length != 2)
+            return false;
+        
         var tokenHmac = tokenSplit[0];
         var tokenRandom = Convert.FromHexString(tokenSplit[1]);
 

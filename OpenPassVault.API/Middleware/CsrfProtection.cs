@@ -1,3 +1,4 @@
+using Microsoft.Net.Http.Headers;
 using OpenPassVault.API.Services.Interfaces;
 using OpenPassVault.API.Shared;
 using OpenPassVault.Shared.Auth;
@@ -14,7 +15,7 @@ public class CsrfProtection(ICsrfTokenService csrfTokenService) : IMiddleware
         var headers = context.Request.Headers;
         
         if (StateChangingMethods.Contains(context.Request.Method) 
-            && headers.TryGetValue(Constants.Headers.Authorization, out var authorization))
+            && headers.TryGetValue(HeaderNames.Authorization, out var authorization))
         {
             var token = authorization.ToString().Replace("Bearer ", "");
             if (string.IsNullOrEmpty(token))
