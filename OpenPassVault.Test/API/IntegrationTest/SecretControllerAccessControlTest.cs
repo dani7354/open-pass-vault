@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Net.Http.Headers;
 using OpenPassVault.Test.API.Setup;
 using System.Net;
+using OpenPassVault.Shared.DTO;
 
 namespace OpenPassVault.Test.API.IntegrationTest;
 
@@ -41,6 +42,31 @@ public class SecretControllerAccessControlTest : ControllerTestBase
         var getResponseUserTwo = await clientUserTwo.GetAsync($"{Endpoint.SecretBaseEndpoint}/{createdSecretDetails.Id}");
         Assert.Equal(HttpStatusCode.NotFound, getResponseUserTwo.StatusCode);
     }
+
+    [Fact]
+    public async Task Update_OtherUsersSecret_ReturnsNotFound()
+    {
+        string emailUserOne = "mail0@mail.dk", emailUserTwo = "mail1@mail.dk";
+        var clientUserOne = await RegisterUserAndSetupAuthenticatedClient(emailUserOne);
+
+        var createdSecretDetails = await SecretRequestHelper.CreateTestSecretAsync(
+            clientUserOne, SecretRequestHelper.CreateSecretRequestPayload());
+        
+        var clientUserTwo = await RegisterUserAndSetupAuthenticatedClient(emailUserTwo);
+        var updatePayload = new SecretUpdateRequest()
+        {
+            Id = createdSecretDetails.Id,
+            Name = "Updated Name",
+            Username = "updated_username",
+            Type = "Account",
+            Content = "VXBkYXRlZENvbnRlbnQ=", // UpdatedContent
+            Description = "Updated Description",
+        };
+        var response = await clientUserTwo.PutAsync(
+            $"{Endpoint.SecretBaseEndpoint}/{createdSecretDetails.Id}",
+            HttpContentHelper.CreateStringContent(updatePayload));
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
     
     private async Task<HttpClient> RegisterUserAndSetupAuthenticatedClient(string email)
     {
@@ -56,5 +82,4 @@ public class SecretControllerAccessControlTest : ControllerTestBase
         
         return authenticatedClient;
     }
-
 }
