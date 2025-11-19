@@ -38,7 +38,7 @@ public class SecurityHeadersTest : ControllerTestBase
     }
     
     [Fact]
-    public async Task CorsHeaders_ArePresent()
+    public async Task CorsHeaders_ArePresentAndHaveCorrectValue()
     {
         var origin = "http://localhost";
         _client.DefaultRequestHeaders.Add(HeaderNames.Origin, origin);
