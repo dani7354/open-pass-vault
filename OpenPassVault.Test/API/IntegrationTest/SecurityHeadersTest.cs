@@ -38,6 +38,17 @@ public class SecurityHeadersTest : ControllerTestBase
     }
     
     [Fact]
+    public async Task XFrameOptions_IsPresentAndHaveCorrentValue()
+    {
+        var response = await _client.GetAsync(_testEndpoint);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.Contains(HeaderNames.XFrameOptions));
+        var headerValue = response.Headers.GetValues(HeaderNames.XFrameOptions).FirstOrDefault();
+        Assert.Equal("DENY", headerValue);
+    }
+    
+    [Fact]
     public async Task CorsHeaders_ArePresentAndHaveCorrectValue()
     {
         var origin = "http://localhost";
