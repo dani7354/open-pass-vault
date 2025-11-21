@@ -15,7 +15,6 @@ public static class SecretRequestHelper
     public static async Task<SecretDetailsResponse> CreateTestSecretAsync(HttpClient client, StringContent content)
     {
         var response = await client.PostAsync(Endpoint.SecretBaseEndpoint, content);
-        var responseMessage = await response.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         var createdSecret = await response.Content.ReadFromJsonAsync<SecretDetailsResponse>();
