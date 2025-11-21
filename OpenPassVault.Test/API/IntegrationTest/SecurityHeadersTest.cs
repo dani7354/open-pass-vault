@@ -38,7 +38,7 @@ public class SecurityHeadersTest : ControllerTestBase
     }
     
     [Fact]
-    public async Task XFrameOptions_IsPresentAndHaveCorrectValue()
+    public async Task XFrameOptionsHeader_IsPresentAndHaveCorrectValue()
     {
         var response = await _client.GetAsync(_testEndpoint);
 
