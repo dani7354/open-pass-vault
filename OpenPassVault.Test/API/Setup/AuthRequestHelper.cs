@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Net.Http.Headers;
 using OpenPassVault.API.Helpers;
 using OpenPassVault.Shared.Crypto;
 using OpenPassVault.Shared.DTO;
@@ -13,6 +15,21 @@ public static class AuthRequestHelper
     private const string TestUserEmail = "a-mail@gmail.com";
     private const string TestUserPassword = "StrongPassword123!";
     private const string TestUserMasterPasswordHash = "MasterPasswordHashExample";
+    
+    public static async Task RegisterUserAndSetupAuthenticatedClient(
+        HttpClient client, 
+        string email = TestUserEmail)
+    {
+        await RegisterValidTestUser(client, email: email);
+        var (csrfTokenCookie, tokenResponse) = await LoginValidTestUser(client, email: email);
+        
+        client.DefaultRequestHeaders.Authorization = 
+            new System.Net.Http.Headers.AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme, 
+                tokenResponse.Token);
+        
+        client.DefaultRequestHeaders.Add(HeaderNames.Cookie, csrfTokenCookie);
+    }
     
     public static async Task RegisterValidTestUser(
         HttpClient client,

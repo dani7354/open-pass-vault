@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Net.Http.Headers;
 using OpenPassVault.Test.API.Setup;
 using System.Net;
 using OpenPassVault.Shared.DTO;
@@ -71,14 +69,7 @@ public class SecretControllerAccessControlTest : ControllerTestBase
     private async Task<HttpClient> RegisterUserAndSetupAuthenticatedClient(string email)
     {
         var authenticatedClient = Factory.CreateClient();
-        
-        await AuthRequestHelper.RegisterValidTestUser(authenticatedClient, email: email);
-        var (csrfTokenCookie, accessToken) = await AuthRequestHelper.LoginValidTestUser(
-            authenticatedClient, email: email);
-        
-        authenticatedClient.DefaultRequestHeaders.Add(
-            HeaderNames.Authorization, $"{JwtBearerDefaults.AuthenticationScheme} {accessToken.Token}");
-        authenticatedClient.DefaultRequestHeaders.Add(HeaderNames.Cookie, csrfTokenCookie);
+        await AuthRequestHelper.RegisterUserAndSetupAuthenticatedClient(authenticatedClient, email);
         
         return authenticatedClient;
     }

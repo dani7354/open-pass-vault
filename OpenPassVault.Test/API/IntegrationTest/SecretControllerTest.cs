@@ -1,7 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Net.Http.Headers;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Test.API.Setup;
 
@@ -9,7 +7,7 @@ namespace OpenPassVault.Test.API.IntegrationTest;
 
 public class SecretControllerTest : ControllerTestBase
 {
-    private HttpClient _authenticatedClient = null!;
+    private readonly HttpClient _authenticatedClient;
     
     public static IEnumerable<object[]> EndpointsWithAuthentication =>
         new List<object[]>
@@ -24,7 +22,8 @@ public class SecretControllerTest : ControllerTestBase
 
     public SecretControllerTest()
     {
-        SetupAuthenticatedClient().GetAwaiter().GetResult();
+        _authenticatedClient = Factory.CreateClient();
+        AuthRequestHelper.RegisterUserAndSetupAuthenticatedClient(_authenticatedClient).GetAwaiter().GetResult();
     }
     
     #region Tests
@@ -129,24 +128,6 @@ public class SecretControllerTest : ControllerTestBase
             $"{Endpoint.SecretBaseEndpoint}/{createdSecret.Id}");
         
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-    }
-    
-    #endregion
-
-    #region Helpers
-
-    private async Task SetupAuthenticatedClient()
-    {
-        _authenticatedClient = Factory.CreateClient();
-        await AuthRequestHelper.RegisterValidTestUser(_authenticatedClient);
-        var (csrfTokenCookie, tokenResponse) = await AuthRequestHelper.LoginValidTestUser(_authenticatedClient);
-        
-        _authenticatedClient.DefaultRequestHeaders.Authorization = 
-            new System.Net.Http.Headers.AuthenticationHeaderValue(
-                JwtBearerDefaults.AuthenticationScheme, 
-                tokenResponse.Token);
-        
-        _authenticatedClient.DefaultRequestHeaders.Add(HeaderNames.Cookie, csrfTokenCookie);
     }
     
     #endregion
