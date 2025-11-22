@@ -65,7 +65,7 @@ public sealed class SecretController(
         }
         catch (NotFoundException)
         {
-            return BadRequest();
+            return NotFound();
         }
 
         return Ok();

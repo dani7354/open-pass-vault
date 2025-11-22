@@ -1,7 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Net.Http.Headers;
 using OpenPassVault.Shared.DTO;
 using OpenPassVault.Test.API.Setup;
 
@@ -9,13 +7,7 @@ namespace OpenPassVault.Test.API.IntegrationTest;
 
 public class SecretControllerTest : ControllerTestBase
 {
-    private const string TestSecretUsername = "testuser@domain.com";
-    private const string TestSecretType = "Account";
-    private const string TestSecretDescription = "My description...";
-    private const string TestSecretName = "My Account";
-    private const string TestSecretContent = "U3VwZXJTZWNyZXRDb250ZW50Cg==";  // SuperSecretContent
-    
-    private HttpClient _authenticatedClient = null!;
+    private readonly HttpClient _authenticatedClient;
     
     public static IEnumerable<object[]> EndpointsWithAuthentication =>
         new List<object[]>
@@ -30,7 +22,8 @@ public class SecretControllerTest : ControllerTestBase
 
     public SecretControllerTest()
     {
-        SetupAuthenticatedClient().GetAwaiter().GetResult();
+        _authenticatedClient = Factory.CreateClient();
+        AuthRequestHelper.RegisterUserAndSetupAuthenticatedClient(_authenticatedClient).GetAwaiter().GetResult();
     }
     
     #region Tests
@@ -69,7 +62,8 @@ public class SecretControllerTest : ControllerTestBase
     [Fact]
     public async Task Secrets_AfterCreatingSecret_ReturnsCreatedSecretInList()
     {
-        var createdSecret = await CreateTestSecretAsync();
+        var createdSecret = await SecretRequestHelper.CreateTestSecretAsync(
+            _authenticatedClient, SecretRequestHelper.CreateSecretRequestPayload());
 
         var response = await _authenticatedClient.GetAsync(Endpoint.SecretBaseEndpoint);
 
@@ -88,20 +82,22 @@ public class SecretControllerTest : ControllerTestBase
     [Fact]
     public async Task CreateSecret_ValidInput_ReturnsCreatedSecret()
     {
-        var createdSecret = await CreateTestSecretAsync();
+        var createdSecret = await SecretRequestHelper.CreateTestSecretAsync(
+            _authenticatedClient, SecretRequestHelper.CreateSecretRequestPayload());
         
         Assert.NotNull(createdSecret);
-        Assert.Equal(TestSecretName, createdSecret.Name);
-        Assert.Equal(TestSecretType, createdSecret.Type);
-        Assert.Equal(TestSecretUsername, createdSecret.Username);
-        Assert.Equal(TestSecretContent, createdSecret.Content);
-        Assert.Equal(TestSecretDescription, createdSecret.Description);
+        Assert.Equal(SecretRequestHelper.TestSecretName, createdSecret.Name);
+        Assert.Equal(SecretRequestHelper.TestSecretType, createdSecret.Type);
+        Assert.Equal(SecretRequestHelper.TestSecretUsername, createdSecret.Username);
+        Assert.Equal(SecretRequestHelper.TestSecretContent, createdSecret.Content);
+        Assert.Equal(SecretRequestHelper.TestSecretDescription, createdSecret.Description);
     }
     
     [Fact]
     public async Task UpdateSecret_ValidInput_ReturnsUpdatedSecret()
     {
-        var createdSecret = await CreateTestSecretAsync();
+        var createdSecret = await SecretRequestHelper.CreateTestSecretAsync(
+            _authenticatedClient, SecretRequestHelper.CreateSecretRequestPayload());
 
         var updatedName = "Updated Secret Name";
         var updatedContent = "UpdatedSecretContent";
@@ -126,7 +122,7 @@ public class SecretControllerTest : ControllerTestBase
     [Fact]
     public async Task DeleteSecret_ExistingSecret_ReturnsNoContent()
     {
-        var createdSecret = await CreateTestSecretAsync();
+        var createdSecret = await SecretRequestHelper.CreateTestSecretAsync(_authenticatedClient, SecretRequestHelper.CreateSecretRequestPayload());
 
         var response = await _authenticatedClient.DeleteAsync(
             $"{Endpoint.SecretBaseEndpoint}/{createdSecret.Id}");
@@ -134,53 +130,5 @@ public class SecretControllerTest : ControllerTestBase
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
     
-    #endregion
-
-    #region Helpers
-
-    private async Task<SecretDetailsResponse> CreateTestSecretAsync()
-    {
-        var requestPayload = CreateSecretRequestPayload();
-        var response = await _authenticatedClient.PostAsync(Endpoint.SecretBaseEndpoint, requestPayload);
-
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-
-        var createdSecret = await response.Content.ReadFromJsonAsync<SecretDetailsResponse>();
-        Assert.NotNull(createdSecret);
-        return createdSecret;
-    }
-
-    private StringContent CreateSecretRequestPayload(
-        string name = TestSecretName,
-        string type = TestSecretType,
-        string? username = TestSecretUsername,
-        string content = TestSecretContent,
-        string? description = TestSecretDescription)
-    {
-        var newSecretRequest = new SecretCreateRequest
-        {
-            Name = name,
-            Type = type,
-            Username = username,
-            Content = content,
-            Description = description
-        };
-
-        return HttpContentHelper.CreateStringContent(newSecretRequest);
-    }
-    
-    private async Task SetupAuthenticatedClient()
-    {
-        _authenticatedClient = Factory.CreateClient();
-        await AuthRequestHelper.RegisterValidTestUser(_authenticatedClient);
-        var (csrfTokenCookie, tokenResponse) = await AuthRequestHelper.LoginValidTestUser(_authenticatedClient);
-        
-        _authenticatedClient.DefaultRequestHeaders.Authorization = 
-            new System.Net.Http.Headers.AuthenticationHeaderValue(
-                JwtBearerDefaults.AuthenticationScheme, 
-                tokenResponse.Token);
-        
-        _authenticatedClient.DefaultRequestHeaders.Add(HeaderNames.Cookie, csrfTokenCookie);
-    }
     #endregion
 }

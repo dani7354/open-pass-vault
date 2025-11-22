@@ -38,7 +38,18 @@ public class SecurityHeadersTest : ControllerTestBase
     }
     
     [Fact]
-    public async Task CorsHeaders_ArePresent()
+    public async Task XFrameOptionsHeader_IsPresentAndHaveCorrectValue()
+    {
+        var response = await _client.GetAsync(_testEndpoint);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.Contains(HeaderNames.XFrameOptions));
+        var headerValue = response.Headers.GetValues(HeaderNames.XFrameOptions).FirstOrDefault();
+        Assert.Equal("DENY", headerValue);
+    }
+    
+    [Fact]
+    public async Task CorsHeaders_ArePresentAndHaveCorrectValue()
     {
         var origin = "http://localhost";
         _client.DefaultRequestHeaders.Add(HeaderNames.Origin, origin);
