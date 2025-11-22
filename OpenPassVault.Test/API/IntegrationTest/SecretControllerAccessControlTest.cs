@@ -51,7 +51,7 @@ public class SecretControllerAccessControlTest : ControllerTestBase
             clientUserOne, SecretRequestHelper.CreateSecretRequestPayload());
         
         var clientUserTwo = await RegisterUserAndSetupAuthenticatedClient(emailUserTwo);
-        var updatePayload = new SecretUpdateRequest()
+        var updatePayload = new SecretUpdateRequest
         {
             Id = createdSecretDetails.Id,
             Name = "Updated Name",
