@@ -1,4 +1,3 @@
-using OpenPassVault.Shared.DTO;
 using OpenPassVault.Web.Models;
 using OpenPassVault.Web.Providers;
 using OpenPassVault.Web.Services.Exceptions;
@@ -8,7 +7,7 @@ namespace OpenPassVault.Web.Services;
 
 public class UserUpdateService(
     ApiAuthenticationStateProvider authenticationStateProvider,
-    IAuthService authService, 
+    IAuthService authService,
     ISecretService secretService, 
     IMasterPasswordStorage masterPasswordStorage,
     ILogger<UserUpdateService> logger) : IUserUpdateService
