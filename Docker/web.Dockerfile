@@ -1,4 +1,4 @@
-ARG DOTNET_VER=9.0
+ARG DOTNET_VER=10.0
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VER} AS build
 WORKDIR /app
@@ -11,7 +11,7 @@ WORKDIR /app/OpenPassVault.Web
 RUN dotnet restore
 RUN dotnet publish -c Release -o out --no-restore
 
-FROM nginx:1.29.1
+FROM nginx:1.29.3
 WORKDIR /app
 EXPOSE 443
 EXPOSE 80
