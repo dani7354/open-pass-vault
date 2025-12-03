@@ -1,6 +1,3 @@
 namespace OpenPassVault.API.Data.Exceptions;
 
-public class NotFoundException : Exception
-{
-    
-}
+public class NotFoundException : Exception;

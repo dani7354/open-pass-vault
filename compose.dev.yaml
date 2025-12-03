@@ -7,7 +7,6 @@ services:
     build:
       context: ./
       dockerfile: Docker/web.Dockerfile
-    command: sh -c "sed -i 's/Blazor-Environment.*/Blazor-Environment \"Development\";/g' /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
   api:
     build:
       context: ./
