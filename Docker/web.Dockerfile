@@ -11,7 +11,7 @@ WORKDIR /app/OpenPassVault.Web
 RUN dotnet restore
 RUN dotnet publish -c Release -o out --no-restore
 
-FROM nginx:1.29.3
+FROM nginx:1.31.8
 WORKDIR /app
 EXPOSE 443
 EXPOSE 80

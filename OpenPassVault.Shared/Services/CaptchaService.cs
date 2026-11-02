@@ -8,6 +8,9 @@ namespace OpenPassVault.Shared.Services;
 
 public class CaptchaService(IHmacService hmacService) : ICaptchaService
 {
+    private const string FontResourceName = "DejaVuSans-Oblique.ttf";
+    private static readonly SKTypeface Typeface = LoadTypeface();
+    
     private const int ImageWidth = 200;
     private const int ImageHeight = 80;
     private const int CaptchaLength = 9;
@@ -47,24 +50,35 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
     private Task<string> CreateImage(string captchaCode)
     {
         var imageInfo = new  SKImageInfo(width: ImageWidth, height: ImageHeight, SKColorType.RgbaF32);
+        using var surface = SKSurface.Create(imageInfo);
         using var bitmap = new SKBitmap(imageInfo);
-        using var bitmapCanvas = new SKCanvas(bitmap);
+        using var bitmapCanvas = surface.Canvas;
+        bitmapCanvas.Clear(SKColors.White);
         
+        using var font = new SKFont(Typeface, 24);
+        using var paint = new SKPaint();
+        paint.Color = SKColors.Crimson;
+        paint.IsAntialias = true;
+        paint.Style = SKPaintStyle.Fill;
+
         const int xCoordinate = 20;
         const int yCoordinate = ImageHeight / 2 + 16;
         bitmapCanvas.DrawText(
             captchaCode,
             new SKPoint(xCoordinate, yCoordinate), // Adjust position as needed
-            new SKFont(SKTypeface.FromFamilyName("Arial"), 24),
-            new SKPaint
-            {
-                Color = SKColors.Gray,
-                IsAntialias = true,
-                Style = SKPaintStyle.Stroke
-            }
+            SKTextAlign.Left,
+            font,
+            paint
         );
 
-        using var bitmapPng = bitmap.Encode(SKEncodedImageFormat.Png, 65);
+        using var bitmapPng = surface.Snapshot().Encode(SKEncodedImageFormat.Png, 65);
         return Task.FromResult(Convert.ToBase64String(bitmapPng.ToArray()));
+    }
+    
+    private static SKTypeface LoadTypeface()
+    {
+        using var stream = typeof(CaptchaService).Assembly.GetManifestResourceStream(FontResourceName)
+                           ?? throw new InvalidOperationException("Font not found");
+        return SKTypeface.FromStream(stream);
     }
 }
