@@ -51,7 +51,6 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
     {
         var imageInfo = new  SKImageInfo(width: ImageWidth, height: ImageHeight, SKColorType.RgbaF32);
         using var surface = SKSurface.Create(imageInfo);
-        using var bitmap = new SKBitmap(imageInfo);
         using var bitmapCanvas = surface.Canvas;
         bitmapCanvas.Clear(SKColors.White);
         
@@ -70,14 +69,15 @@ public class CaptchaService(IHmacService hmacService) : ICaptchaService
             font,
             paint
         );
-
-        using var bitmapPng = surface.Snapshot().Encode(SKEncodedImageFormat.Png, 65);
+        
+        using var snapshot = surface.Snapshot();
+        using var bitmapPng = snapshot.Encode(SKEncodedImageFormat.Png, 65);
         return Task.FromResult(Convert.ToBase64String(bitmapPng.ToArray()));
     }
     
     private static SKTypeface LoadTypeface()
     {
-        using var stream = typeof(CaptchaService).Assembly.GetManifestResourceStream(FontResourceName)
+        var stream = typeof(CaptchaService).Assembly.GetManifestResourceStream(FontResourceName)
                            ?? throw new InvalidOperationException("Font not found");
         return SKTypeface.FromStream(stream);
     }
